@@ -1,1 +1,49 @@
+name: elaarra_calorie_tracker
+description: A beautiful calorie tracking app with AI features to help you achieve your health goals.
 
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^2.24.0
+  firebase_auth: ^4.10.0
+  cloud_firestore: ^4.13.0
+  firebase_storage: ^11.2.0
+  provider: ^6.0.0
+  cupertino_icons: ^1.0.2
+  http: ^1.1.0
+  dio: ^5.3.0
+  image_picker: ^1.0.0
+  cached_network_image: ^3.3.0
+  google_ml_kit: ^0.13.0
+  in_app_purchase: ^4.1.0
+  shared_preferences: ^2.2.0
+  sqflite: ^2.3.0
+  intl: ^0.19.0
+  flutter_animate: ^4.1.1
+  flutter_svg: ^2.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
