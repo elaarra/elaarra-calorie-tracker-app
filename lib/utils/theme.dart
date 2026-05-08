@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color darkBrown    = Color(0xFF3D1A10);
-  static const Color midBrown     = Color(0xFF7A3B2E);
-  static const Color sienna       = Color(0xFFC4735A);
-  static const Color blush        = Color(0xFFE8B49A);
-  static const Color cream        = Color(0xFFFAF2EE);
-  static const Color white        = Color(0xFFFFFFFF);
-  static const Color inputBg      = Color(0xFFF0D5C8);
-  static const Color success      = Color(0xFF4CAF50);
-  static const Color error        = Color(0xFFE53935);
+  static const Color darkBrown = Color(0xFF3D1A10);
+  static const Color midBrown  = Color(0xFF7A3B2E);
+  static const Color sienna    = Color(0xFFC4735A);
+  static const Color blush     = Color(0xFFE8B49A);
+  static const Color cream     = Color(0xFFFAF2EE);
+  static const Color white     = Color(0xFFFFFFFF);
+  static const Color inputBg   = Color(0xFFF0D5C8);
+  static const Color success   = Color(0xFF4CAF50);
+  static const Color error     = Color(0xFFE53935);
 }
 
 class AppTextStyles {
   // Brand mark — always lowercase, never override
   static const TextStyle brandMark = TextStyle(
     fontFamily: 'CormorantGaramond',
-    fontSize: 15,
+    fontSize: 22,
     fontWeight: FontWeight.w600,
     color: AppColors.blush,
     letterSpacing: 0.04,
@@ -25,16 +25,16 @@ class AppTextStyles {
   // Large editorial titles — on gradient background
   static const TextStyle titleLarge = TextStyle(
     fontFamily: 'CormorantGaramond',
-    fontSize: 32,
+    fontSize: 44,
     fontWeight: FontWeight.w700,
     color: AppColors.cream,
     height: 1.12,
   );
 
-  // Section titles — on white/card surfaces  
+  // Section titles — on white/card surfaces
   static const TextStyle titleMedium = TextStyle(
     fontFamily: 'CormorantGaramond',
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: FontWeight.w700,
     color: AppColors.darkBrown,
     height: 1.2,
@@ -43,26 +43,25 @@ class AppTextStyles {
   // Body text — Neue Montreal light
   static const TextStyle body = TextStyle(
     fontFamily: 'NeueMontreal',
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: FontWeight.w300,
     color: AppColors.blush,
-    height: 1.65,
+    height: 1.55,
     letterSpacing: 0.01,
   );
 
   // Labels — Neue Montreal regular
   static const TextStyle label = TextStyle(
     fontFamily: 'NeueMontreal',
-    fontSize: 10,
+    fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppColors.midBrown,
-    letterSpacing: 0.0,
   );
 
   // Step indicator & caps labels
   static const TextStyle caption = TextStyle(
     fontFamily: 'NeueMontreal',
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: FontWeight.w300,
     color: AppColors.blush,
     letterSpacing: 0.12,
@@ -71,7 +70,7 @@ class AppTextStyles {
   // Input values — Cormorant numbers feel luxurious
   static const TextStyle inputValue = TextStyle(
     fontFamily: 'CormorantGaramond',
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: FontWeight.w700,
     color: AppColors.darkBrown,
   );
@@ -79,7 +78,7 @@ class AppTextStyles {
   // Button text
   static const TextStyle button = TextStyle(
     fontFamily: 'NeueMontreal',
-    fontSize: 12,
+    fontSize: 15,
     fontWeight: FontWeight.w500,
     color: AppColors.darkBrown,
     letterSpacing: 0.08,
