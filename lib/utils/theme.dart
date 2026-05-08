@@ -42,7 +42,7 @@ class AppTextStyles {
 
   // Body text — Neue Montreal light
   static const TextStyle body = TextStyle(
-    fontFamily: 'NueveMontreal',
+    fontFamily: 'NeueMontreal',
     fontSize: 13,
     fontWeight: FontWeight.w300,
     color: AppColors.blush,
@@ -52,7 +52,7 @@ class AppTextStyles {
 
   // Labels — Neue Montreal regular
   static const TextStyle label = TextStyle(
-    fontFamily: 'NueveMontreal',
+    fontFamily: 'NeueMontreal',
     fontSize: 10,
     fontWeight: FontWeight.w400,
     color: AppColors.midBrown,
@@ -61,7 +61,7 @@ class AppTextStyles {
 
   // Step indicator & caps labels
   static const TextStyle caption = TextStyle(
-    fontFamily: 'NueveMontreal',
+    fontFamily: 'NeueMontreal',
     fontSize: 9,
     fontWeight: FontWeight.w300,
     color: AppColors.blush,
@@ -78,7 +78,7 @@ class AppTextStyles {
 
   // Button text
   static const TextStyle button = TextStyle(
-    fontFamily: 'NueveMontreal',
+    fontFamily: 'NeueMontreal',
     fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.darkBrown,
