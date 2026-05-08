@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'state/app_state.dart';
 import 'services/database_service.dart';
 import 'utils/theme.dart';
 import 'screens/onboarding/onboarding_screen.dart';
+import 'screens/auth/auth_screen.dart';
 import 'screens/main_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState(),
@@ -37,7 +41,6 @@ class ElaarraApp extends StatelessWidget {
   }
 }
 
-// Loads app state from SQLite before deciding which screen to show
 class _AppLoader extends StatefulWidget {
   const _AppLoader({Key? key}) : super(key: key);
 
@@ -46,8 +49,9 @@ class _AppLoader extends StatefulWidget {
 }
 
 class _AppLoaderState extends State<_AppLoader> {
-  bool _ready           = false;
-  bool _showOnboarding  = true;
+  bool _ready          = false;
+  bool _showOnboarding = false;
+  bool _showAuth       = false;
 
   @override
   void initState() {
@@ -56,11 +60,20 @@ class _AppLoaderState extends State<_AppLoader> {
   }
 
   Future<void> _load() async {
-    // Initialise app state from SQLite
+    // Initialise local state from SQLite
     final state = context.read<AppState>();
     await state.init();
 
-    // Check if onboarding has been completed
+    // Check Firebase auth state
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      // Not logged in — show auth screen
+      if (mounted) setState(() { _showAuth = true; _ready = true; });
+      return;
+    }
+
+    // Logged in — check if onboarding complete
     final onboardingDone =
         await DatabaseService.instance.isOnboardingComplete();
 
@@ -75,17 +88,15 @@ class _AppLoaderState extends State<_AppLoader> {
   @override
   Widget build(BuildContext context) {
     if (!_ready) {
-      // Splash screen while loading
       return Container(
         decoration: const BoxDecoration(gradient: AppGradient.background),
         child: const Center(
-          child: Text(
-            'elaarra',
-            style: AppTextStyles.brandMark,
-          ),
+          child: Text('elaarra', style: AppTextStyles.brandMark),
         ),
       );
     }
-    return _showOnboarding ? const OnboardingScreen() : const MainShell();
+    if (_showAuth)       return const AuthScreen();
+    if (_showOnboarding) return const OnboardingScreen();
+    return const MainShell();
   }
 }
