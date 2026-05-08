@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'state/app_state.dart';
 import 'utils/theme.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/main_shell.dart';
 
 void main() {
-  runApp(const ElaarraApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AppState(),
+      child: const ElaarraApp(),
+    ),
+  );
 }
 
 class ElaarraApp extends StatelessWidget {
