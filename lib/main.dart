@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'utils/theme.dart';
 import 'screens/onboarding/onboarding_screen.dart';
+import 'screens/main_shell.dart';
 
 void main() {
   runApp(const ElaarraApp());
@@ -22,7 +23,11 @@ class ElaarraApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
       ),
-      home: const OnboardingScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const OnboardingScreen(),
+        '/dashboard': (context) => const MainShell(),
+      },
     );
   }
 }
