@@ -22,7 +22,6 @@ class DatabaseService {
   }
 
   Future _createDB(Database db, int version) async {
-    // User profile table
     await db.execute('''
       CREATE TABLE user_profile (
         id INTEGER PRIMARY KEY,
@@ -32,8 +31,6 @@ class DatabaseService {
         onboarding_complete INTEGER NOT NULL DEFAULT 0
       )
     ''');
-
-    // Log entries table
     await db.execute('''
       CREATE TABLE log_entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,8 +41,6 @@ class DatabaseService {
         date_key TEXT NOT NULL
       )
     ''');
-
-    // Weight entries table
     await db.execute('''
       CREATE TABLE weight_entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,8 +48,6 @@ class DatabaseService {
         logged_at TEXT NOT NULL
       )
     ''');
-
-    // Goals table
     await db.execute('''
       CREATE TABLE goals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,8 +59,6 @@ class DatabaseService {
         is_active INTEGER NOT NULL DEFAULT 1
       )
     ''');
-
-    // Insert default profile
     await db.insert('user_profile', {
       'id': 1,
       'user_name': 'there',
@@ -226,7 +217,25 @@ class DatabaseService {
     )).toList();
   }
 
-  // ── Close db ──────────────────────────────────────────────
+  // ── Clear all data ────────────────────────────────────────
+  Future<void> clearAllData() async {
+    final db = await database;
+    await db.delete('log_entries');
+    await db.delete('weight_entries');
+    await db.delete('goals');
+    await db.update(
+      'user_profile',
+      {
+        'user_name': 'there',
+        'daily_target': 1650,
+        'is_premium': 0,
+        'onboarding_complete': 0,
+      },
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+  }
+
   Future close() async {
     final db = await database;
     db.close();
