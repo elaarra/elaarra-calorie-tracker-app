@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
 import '../../state/app_state.dart';
 import '../log/log_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -13,7 +14,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // ── Macros (hardcoded until Firebase) ────────────────────
   final int _proteinConsumed = 68;
   final int _proteinTarget   = 124;
   final int _carbsConsumed   = 112;
@@ -217,21 +217,29 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(state.userName, style: AppTextStyles.titleLarge.copyWith(fontSize: 40)),
           ],
         ),
-        Container(
-          width: 42, height: 42,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white.withOpacity(0.1),
-            border: Border.all(color: AppColors.blush.withOpacity(0.4)),
+        GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfileScreen()),
           ),
-          child: Center(
-            child: Text(
-              state.userName[0].toUpperCase(),
-              style: AppTextStyles.label.copyWith(
-                color: AppColors.blush,
-                fontSize: 16,
-                fontFamily: 'CormorantGaramond',
-                fontWeight: FontWeight.w700,
+          child: Container(
+            width: 42, height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.1),
+              border: Border.all(color: AppColors.blush.withOpacity(0.4)),
+            ),
+            child: Center(
+              child: Text(
+                state.userName.isNotEmpty
+                    ? state.userName[0].toUpperCase()
+                    : 'E',
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.blush,
+                  fontSize: 16,
+                  fontFamily: 'CormorantGaramond',
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
