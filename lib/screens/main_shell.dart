@@ -54,7 +54,7 @@ class _MainShellState extends State<MainShell> {
               _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
               _buildNavItem(1, Icons.edit_outlined, Icons.edit_rounded, 'Log'),
               _buildAnalyseItem(),
-              _buildNavItem(3, Icons.flag_outlined, Icons.flag_rounded, 'Results'),
+              _buildNavItem(3, Icons.trending_up_outlined, Icons.trending_up, 'Results'),
             ],
           ),
         ),
