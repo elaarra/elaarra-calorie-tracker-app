@@ -57,6 +57,7 @@ class _AppLoaderState extends State<_AppLoader> {
   void initState() {
     super.initState();
     _load();
+    await FirebaseAuth.instance.signOut();
   }
 
   Future<void> _load() async {
