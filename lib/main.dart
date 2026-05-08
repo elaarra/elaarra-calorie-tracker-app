@@ -57,10 +57,12 @@ class _AppLoaderState extends State<_AppLoader> {
   void initState() {
     super.initState();
     _load();
-    await FirebaseAuth.instance.signOut();
   }
 
   Future<void> _load() async {
+    // Temporary sign out to test auth screen — remove this line after testing
+    await FirebaseAuth.instance.signOut();
+
     // Initialise local state from SQLite
     final state = context.read<AppState>();
     await state.init();
@@ -69,7 +71,6 @@ class _AppLoaderState extends State<_AppLoader> {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      // Not logged in — show auth screen
       if (mounted) setState(() { _showAuth = true; _ready = true; });
       return;
     }
