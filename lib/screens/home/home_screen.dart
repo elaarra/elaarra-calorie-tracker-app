@@ -1,7 +1,9 @@
-import 'package:provider/provider.dart';
-import '../../state/app_state.dart';import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
+import '../../state/app_state.dart';
+import '../log/log_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -11,44 +13,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // ── Temporary hardcoded data — replace with real data later ──
-  final String _userName    = 'Ella';
-  final int _dailyTarget    = 1650;
-  int _caloriesConsumed     = 1240;
-
-  final List<Map<String, dynamic>> _meals = [
-    {'name': 'Porridge with berries', 'type': 'Breakfast', 'time': '08:30', 'kcal': 320},
-    {'name': 'Grilled chicken salad', 'type': 'Lunch',     'time': '13:15', 'kcal': 480},
-    {'name': 'Greek yoghurt',         'type': 'Snack',     'time': '16:00', 'kcal': 140},
-  ];
-
-  final int _streakDays = 7;
-
-  // ── Macros (hardcoded for now) ────────────────────────────
+  // ── Macros (hardcoded until Firebase) ────────────────────
   final int _proteinConsumed = 68;
   final int _proteinTarget   = 124;
   final int _carbsConsumed   = 112;
   final int _carbsTarget     = 165;
   final int _fatConsumed     = 38;
   final int _fatTarget       = 55;
-
-  // ── Computed values ───────────────────────────────────────
-  int get _remaining => (_dailyTarget - _caloriesConsumed).clamp(0, _dailyTarget);
-  double get _progress => (_caloriesConsumed / _dailyTarget).clamp(0.0, 1.0);
-  int get _percentage => (_progress * 100).round();
-  bool get _isOver => _caloriesConsumed > _dailyTarget;
-
-  String get _encouragement {
-    if (_isOver) {
-      return 'Every day is a fresh start — tomorrow is yours to own.';
-    } else if (_percentage >= 90) {
-      return 'Almost there. You\'ve been intentional today — finish strong.';
-    } else if (_percentage >= 60) {
-      return 'You\'re right where you need to be. Stay the course.';
-    } else {
-      return 'A great start. Your consistency is building something real.';
-    }
-  }
 
   String get _greeting {
     final h = DateTime.now().hour;
@@ -57,8 +28,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return 'Good evening,';
   }
 
-  // ── Quick add sheet ───────────────────────────────────────
   void _openQuickAdd() {
+    final state = context.read<AppState>();
     final controller = TextEditingController();
     String selectedType = 'Snack';
     final types = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
@@ -69,27 +40,21 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom,
-          ),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
           child: Container(
             decoration: const BoxDecoration(
               gradient: AppGradient.background,
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              border: Border(
-                top: BorderSide(color: AppColors.blush, width: 0.3),
-              ),
+              border: Border(top: BorderSide(color: AppColors.blush, width: 0.3)),
             ),
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Handle
                 Center(
                   child: Container(
-                    width: 36,
-                    height: 3,
+                    width: 36, height: 3,
                     decoration: BoxDecoration(
                       color: AppColors.blush.withOpacity(0.4),
                       borderRadius: BorderRadius.circular(8),
@@ -101,8 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 4),
                 Text('Log calories in a few taps.', style: AppTextStyles.body),
                 const SizedBox(height: 20),
-
-                // Meal type selector
                 SizedBox(
                   height: 36,
                   child: ListView(
@@ -136,8 +99,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Calorie input
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.95),
@@ -153,14 +114,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           keyboardType: TextInputType.number,
                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                           style: AppTextStyles.inputValue.copyWith(
-                            color: AppColors.darkBrown,
-                            fontSize: 36,
+                            color: AppColors.darkBrown, fontSize: 36,
                           ),
                           decoration: InputDecoration(
                             hintText: '0',
                             hintStyle: AppTextStyles.inputValue.copyWith(
-                              color: AppColors.blush,
-                              fontSize: 36,
+                              color: AppColors.blush, fontSize: 36,
                             ),
                             border: InputBorder.none,
                             isDense: true,
@@ -168,32 +127,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                      Text(
-                        'kcal',
-                        style: AppTextStyles.label.copyWith(
-                          color: AppColors.sienna,
-                          fontSize: 16,
-                        ),
-                      ),
+                      Text('kcal', style: AppTextStyles.label.copyWith(
+                        color: AppColors.sienna, fontSize: 16,
+                      )),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Add button
                 GestureDetector(
                   onTap: () {
                     final kcal = int.tryParse(controller.text) ?? 0;
                     if (kcal > 0) {
-                      setState(() {
-                        _caloriesConsumed += kcal;
-                        _meals.add({
-                          'name': 'Quick add',
-                          'type': selectedType,
-                          'time': TimeOfDay.now().format(context),
-                          'kcal': kcal,
-                        });
-                      });
+                      state.addEntry(
+                        DateTime.now(),
+                        LogEntry(
+                          calories: kcal,
+                          label: selectedType,
+                          loggedAt: DateTime.now(),
+                        ),
+                      );
                     }
                     Navigator.pop(ctx);
                   },
@@ -219,8 +171,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  String _formatTime(DateTime dt) {
+    final h   = dt.hour.toString().padLeft(2, '0');
+    final min = dt.minute.toString().padLeft(2, '0');
+    return '$h:$min';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return Container(
       decoration: const BoxDecoration(gradient: AppGradient.background),
@@ -230,15 +189,15 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
+              _buildHeader(state),
               const SizedBox(height: 20),
-              _buildProgressRing(),
+              _buildProgressRing(state),
               const SizedBox(height: 10),
-              _buildEncouragement(),
+              _buildEncouragement(state),
               const SizedBox(height: 10),
               _buildMacros(),
               const SizedBox(height: 16),
-              _buildMealList(),
+              _buildMealList(state),
             ],
           ),
         ),
@@ -246,8 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Header ─────────────────────────────────────────────────
-  Widget _buildHeader() {
+  Widget _buildHeader(AppState state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,15 +214,11 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(_greeting, style: AppTextStyles.body),
-            Text(
-              _userName,
-              style: AppTextStyles.titleLarge.copyWith(fontSize: 40),
-            ),
+            Text(state.userName, style: AppTextStyles.titleLarge.copyWith(fontSize: 40)),
           ],
         ),
         Container(
-          width: 42,
-          height: 42,
+          width: 42, height: 42,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white.withOpacity(0.1),
@@ -272,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: Center(
             child: Text(
-              _userName[0].toUpperCase(),
+              state.userName[0].toUpperCase(),
               style: AppTextStyles.label.copyWith(
                 color: AppColors.blush,
                 fontSize: 16,
@@ -286,8 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Progress ring ─────────────────────────────────────────
-  Widget _buildProgressRing() {
+  Widget _buildProgressRing(AppState state) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -297,32 +250,28 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            'TODAY\'S PROGRESS',
-            style: AppTextStyles.caption.copyWith(letterSpacing: 0.14),
-          ),
+          Text('TODAY\'S PROGRESS', style: AppTextStyles.caption.copyWith(letterSpacing: 0.14)),
           const SizedBox(height: 16),
           SizedBox(
-            width: 140,
-            height: 140,
+            width: 140, height: 140,
             child: Stack(
               alignment: Alignment.center,
               children: [
                 CustomPaint(
                   size: const Size(140, 140),
-                  painter: _RingPainter(progress: _progress, isOver: _isOver),
+                  painter: _RingPainter(
+                    progress: state.todayProgress,
+                    isOver: state.isOverToday,
+                  ),
                 ),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      _caloriesConsumed.toString(),
+                      state.todayConsumed.toString(),
                       style: AppTextStyles.titleLarge.copyWith(fontSize: 30),
                     ),
-                    Text(
-                      'of $_dailyTarget',
-                      style: AppTextStyles.caption,
-                    ),
+                    Text('of ${state.dailyTarget}', style: AppTextStyles.caption),
                   ],
                 ),
               ],
@@ -332,11 +281,16 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildRingStat(_isOver ? 'over' : 'remaining', _isOver ? (_caloriesConsumed - _dailyTarget).toString() : _remaining.toString()),
+              _buildRingStat(
+                state.isOverToday ? 'over' : 'remaining',
+                state.isOverToday
+                    ? (state.todayConsumed - state.dailyTarget).toString()
+                    : state.todayRemaining.toString(),
+              ),
               Container(width: 0.5, height: 28, color: AppColors.blush.withOpacity(0.3)),
-              _buildRingStat('of goal', '$_percentage%'),
+              _buildRingStat('of goal', '${(state.todayProgress * 100).round()}%'),
               Container(width: 0.5, height: 28, color: AppColors.blush.withOpacity(0.3)),
-              _buildRingStat('day streak', _streakDays.toString()),
+              _buildRingStat('day streak', state.streakDays.toString()),
             ],
           ),
         ],
@@ -353,8 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Encouragement message ─────────────────────────────────
-  Widget _buildEncouragement() {
+  Widget _buildEncouragement(AppState state) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -364,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
         border: Border.all(color: AppColors.blush.withOpacity(0.2)),
       ),
       child: Text(
-        _encouragement,
+        state.encouragement,
         style: AppTextStyles.body.copyWith(
           fontSize: 14,
           fontStyle: FontStyle.italic,
@@ -375,7 +328,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Macros ────────────────────────────────────────────────
   Widget _buildMacros() {
     return Row(
       children: [
@@ -401,10 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '${consumed}g',
-              style: AppTextStyles.titleLarge.copyWith(fontSize: 20),
-            ),
+            Text('${consumed}g', style: AppTextStyles.titleLarge.copyWith(fontSize: 20)),
             Text(label, style: AppTextStyles.caption.copyWith(fontSize: 10)),
             const SizedBox(height: 8),
             ClipRRect(
@@ -413,7 +362,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: prog,
                 minHeight: 3,
                 backgroundColor: Colors.white.withOpacity(0.15),
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.cream),
+                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.cream),
               ),
             ),
           ],
@@ -422,17 +371,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Meal list ─────────────────────────────────────────────
-  Widget _buildMealList() {
+  Widget _buildMealList(AppState state) {
+    final meals = state.todayEntries;
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'TODAY\'S MEALS',
-              style: AppTextStyles.caption.copyWith(letterSpacing: 0.14),
-            ),
+            Text('TODAY\'S MEALS', style: AppTextStyles.caption.copyWith(letterSpacing: 0.14)),
             GestureDetector(
               onTap: _openQuickAdd,
               child: Container(
@@ -442,13 +388,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.blush.withOpacity(0.3)),
                 ),
-                child: Text(
-                  '+ add',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.cream,
-                    fontSize: 11,
-                  ),
-                ),
+                child: Text('+ add', style: AppTextStyles.caption.copyWith(
+                  color: AppColors.cream, fontSize: 11,
+                )),
               ),
             ),
           ],
@@ -460,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: Colors.white.withOpacity(0.1)),
           ),
-          child: _meals.isEmpty
+          child: meals.isEmpty
               ? Padding(
                   padding: const EdgeInsets.all(20),
                   child: Center(
@@ -472,17 +414,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 )
               : Column(
-                  children: _meals.asMap().entries.map((entry) {
-                    final i = entry.key;
-                    final m = entry.value;
-                    final isLast = i == _meals.length - 1;
+                  children: meals.asMap().entries.map((entry) {
+                    final i      = entry.key;
+                    final m      = entry.value;
+                    final isLast = i == meals.length - 1;
                     return Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           child: Row(
                             children: [
                               Expanded(
@@ -490,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      m['name'],
+                                      m.name ?? 'Entry',
                                       style: AppTextStyles.label.copyWith(
                                         color: AppColors.cream,
                                         fontSize: 13,
@@ -499,19 +438,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      '${m['type']} · ${m['time']}',
-                                      style: AppTextStyles.caption.copyWith(
-                                        fontSize: 10,
-                                      ),
+                                      '${m.label ?? 'No label'} · ${_formatTime(m.loggedAt)}',
+                                      style: AppTextStyles.caption.copyWith(fontSize: 10),
                                     ),
                                   ],
                                 ),
                               ),
                               Text(
-                                '${m['kcal']}',
-                                style: AppTextStyles.titleLarge.copyWith(
-                                  fontSize: 18,
-                                ),
+                                '${m.calories}',
+                                style: AppTextStyles.titleLarge.copyWith(fontSize: 18),
                               ),
                             ],
                           ),
@@ -533,7 +468,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ── Ring painter ──────────────────────────────────────────────
 class _RingPainter extends CustomPainter {
   final double progress;
   final bool isOver;
@@ -542,13 +476,12 @@ class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final radius = (size.width / 2) - 10;
+    final cx      = size.width / 2;
+    final cy      = size.height / 2;
+    final radius  = (size.width / 2) - 10;
     const strokeW = 10.0;
-    const startAngle = -1.5708; // -90 degrees
+    const startAngle = -1.5708;
 
-    // Track
     canvas.drawArc(
       Rect.fromCircle(center: Offset(cx, cy), radius: radius),
       0, 6.2832, false,
@@ -559,7 +492,6 @@ class _RingPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round,
     );
 
-    // Progress
     canvas.drawArc(
       Rect.fromCircle(center: Offset(cx, cy), radius: radius),
       startAngle,
