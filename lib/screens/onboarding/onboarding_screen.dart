@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
+import '../../state/app_state.dart';
+import '../main_shell.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
@@ -13,10 +16,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentStep = 0;
   final int _totalSteps = 4;
 
-  // User inputs
   final _heightController = TextEditingController(text: '165');
   final _weightController = TextEditingController(text: '62');
   final _ageController    = TextEditingController(text: '28');
+  final _nameController   = TextEditingController();
   String _gender          = 'female';
   String _selectedGoal    = 'Lose weight';
   String _activityLevel   = 'Lightly active';
@@ -49,7 +52,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     'Improve health': 0,
   };
 
-  // Calculates daily calorie target using Harris-Benedict
   int get _dailyCalories {
     final h = double.tryParse(_heightController.text) ?? 165;
     final w = double.tryParse(_weightController.text) ?? 62;
@@ -65,12 +67,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int get _carbs   => ((_dailyCalories * 0.40) / 4).round();
   int get _fat     => ((_dailyCalories * 0.30) / 9).round();
 
-  void _next() {
+  Future<void> _next() async {
     if (_currentStep < _totalSteps - 1) {
       setState(() => _currentStep++);
     } else {
-      // TODO: save data and navigate to dashboard
-      Navigator.of(context).pushReplacementNamed('/dashboard');
+      final state = context.read<AppState>();
+      final name  = _nameController.text.trim().isEmpty
+          ? 'there'
+          : _nameController.text.trim();
+      await state.updateProfileFromOnboarding(
+        name: name,
+        target: _dailyCalories,
+      );
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MainShell()),
+        );
+      }
     }
   }
 
@@ -83,6 +96,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _heightController.dispose();
     _weightController.dispose();
     _ageController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -116,7 +130,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           Text('elaarra', style: AppTextStyles.brandMark),
           const SizedBox(height: 16),
-          // Progress bar
           Row(
             children: List.generate(_totalSteps, (i) {
               return Expanded(
@@ -136,9 +149,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 12),
           Text(
             'Step ${_currentStep + 1} of $_totalSteps',
-            style: AppTextStyles.caption.copyWith(
-              letterSpacing: 0.1,
-            ),
+            style: AppTextStyles.caption.copyWith(letterSpacing: 0.1),
           ),
         ],
       ),
@@ -147,23 +158,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildCurrentStep() {
     switch (_currentStep) {
-      case 0: return _buildStatsStep();
-      case 1: return _buildGoalStep();
-      case 2: return _buildActivityStep();
+      case 0: return _buildNameStep();
+      case 1: return _buildStatsStep();
+      case 2: return _buildGoalStep();
       case 3: return _buildResultStep();
-      default: return _buildStatsStep();
+      default: return _buildNameStep();
     }
   }
 
-  // ── Step 1: Stats ──────────────────────────────────────────
+  // ── Step 1: Name ───────────────────────────────────────────
+  Widget _buildNameStep() {
+    return _buildStepWrapper(
+      key: const ValueKey('name'),
+      title: 'What should\nwe call you?',
+      subtitle: 'This is how elaarra will greet you each day.',
+      child: Column(
+        children: [
+          _buildTextInput('Your name', _nameController, hint: 'e.g. Ella'),
+        ],
+      ),
+    );
+  }
+
+  // ── Step 2: Stats ──────────────────────────────────────────
   Widget _buildStatsStep() {
     return _buildStepWrapper(
       key: const ValueKey('stats'),
       title: "Let's get\nto know you",
-      subtitle: 'Your stats shape everything.',
+      subtitle: 'Your stats shape your daily target.',
       child: Column(
         children: [
-          // Gender selector
           Row(
             children: ['female', 'male'].map((g) {
               final selected = _gender == g;
@@ -185,7 +209,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       textAlign: TextAlign.center,
                       style: AppTextStyles.label.copyWith(
                         color: selected ? AppColors.cream : AppColors.midBrown,
-                        fontFamily: 'NueveMontreal',
+                        fontFamily: 'NeueMontreal',
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -204,7 +228,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // ── Step 2: Goal ───────────────────────────────────────────
+  // ── Step 3: Goal ───────────────────────────────────────────
   Widget _buildGoalStep() {
     return _buildStepWrapper(
       key: const ValueKey('goal'),
@@ -215,22 +239,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           label: g,
           selected: _selectedGoal == g,
           onTap: () => setState(() => _selectedGoal = g),
-        )).toList(),
-      ),
-    );
-  }
-
-  // ── Step 3: Activity ───────────────────────────────────────
-  Widget _buildActivityStep() {
-    return _buildStepWrapper(
-      key: const ValueKey('activity'),
-      title: 'How active\nare you?',
-      subtitle: 'This refines your calorie calculation.',
-      child: Column(
-        children: _activityLevels.map((a) => _buildChoiceChip(
-          label: a,
-          selected: _activityLevel == a,
-          onTap: () => setState(() => _activityLevel = a),
         )).toList(),
       ),
     );
@@ -256,19 +264,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 Text(
                   'DAILY CALORIES',
-                  style: AppTextStyles.caption.copyWith(
-                    letterSpacing: 0.14,
-                  ),
+                  style: AppTextStyles.caption.copyWith(letterSpacing: 0.14),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   _dailyCalories.toString(),
                   style: AppTextStyles.titleLarge.copyWith(fontSize: 48),
                 ),
-                Text(
-                  'kcal per day',
-                  style: AppTextStyles.caption,
-                ),
+                Text('kcal per day', style: AppTextStyles.caption),
               ],
             ),
           ),
@@ -287,7 +290,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // ── Shared layout wrapper ──────────────────────────────────
+  // ── Shared wrapper ─────────────────────────────────────────
   Widget _buildStepWrapper({
     required Key key,
     required String title,
@@ -305,7 +308,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 6),
           Text(subtitle, style: AppTextStyles.body),
           const SizedBox(height: 20),
-          // White card containing inputs/choices
           Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.95),
@@ -315,7 +317,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: child,
           ),
           const SizedBox(height: 16),
-          // Navigation buttons
           Row(
             children: [
               if (_currentStep > 0) ...[
@@ -363,6 +364,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  Widget _buildTextInput(
+    String label,
+    TextEditingController controller, {
+    String? hint,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.cream,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTextStyles.label),
+          TextField(
+            controller: controller,
+            style: AppTextStyles.inputValue,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: AppTextStyles.label.copyWith(color: AppColors.blush),
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInputRow(
     String label,
     TextEditingController controller,
@@ -397,7 +430,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
           ),
-          Text(unit, style: AppTextStyles.label.copyWith(color: AppColors.sienna)),
+          Text(
+            unit,
+            style: AppTextStyles.label.copyWith(color: AppColors.sienna),
+          ),
         ],
       ),
     );
@@ -445,7 +481,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             Text(label, style: AppTextStyles.label),
             const SizedBox(height: 4),
-            Text(value, style: AppTextStyles.inputValue.copyWith(fontSize: 18)),
+            Text(
+              value,
+              style: AppTextStyles.inputValue.copyWith(fontSize: 18),
+            ),
           ],
         ),
       ),
