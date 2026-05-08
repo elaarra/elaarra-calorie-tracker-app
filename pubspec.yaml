@@ -37,15 +37,19 @@ flutter:
   fonts:
     - family: CormorantGaramond
       fonts:
-        - asset: assets/fonts/CormorantGaramond-Bold.ttf
-          weight: 700
+        - asset: assets/fonts/CormorantGaramond-Regular.ttf
+          weight: 400
         - asset: assets/fonts/CormorantGaramond-SemiBold.ttf
           weight: 600
-    - family: NueveMontreal
+        - asset: assets/fonts/CormorantGaramond-Bold.ttf
+          weight: 700
+    - family: NeueMontreal
       fonts:
-        - asset: assets/fonts/NueveMontreal-Light.otf
+        - asset: assets/fonts/NeueMontreal-Light.otf
           weight: 300
-        - asset: assets/fonts/NueveMontreal-Regular.otf
+        - asset: assets/fonts/NeueMontreal-Regular.otf
           weight: 400
-        - asset: assets/fonts/NueveMontreal-Medium.otf
+        - asset: assets/fonts/NeueMontreal-Medium.otf
           weight: 500
+        - asset: assets/fonts/NeueMontreal-Bold.otf
+          weight: 700
