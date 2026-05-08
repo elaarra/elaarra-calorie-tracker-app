@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
+import '../../state/app_state.dart';
+import '../log/log_screen.dart';
 
 class AnalyseScreen extends StatefulWidget {
   const AnalyseScreen({Key? key}) : super(key: key);
@@ -10,14 +13,9 @@ class AnalyseScreen extends StatefulWidget {
 }
 
 class _AnalyseScreenState extends State<AnalyseScreen> {
-  // Toggle this to false to see the free user locked screen
-  final bool _isPremium = true;
-
-  // Screen state: 'split' | 'loading' | 'results'
   String _screenState = 'split';
-  String _mode = ''; // 'food' or 'label'
+  String _mode        = '';
 
-  // Mock AI result — will be replaced with real API response later
   final Map<String, dynamic> _mockResult = {
     'name': 'Spaghetti Bolognese',
     'kcal': 620,
@@ -26,7 +24,6 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
     'fat': 18,
   };
 
-  // Editable result values
   late TextEditingController _nameController;
   late TextEditingController _kcalController;
   late TextEditingController _proteinController;
@@ -55,10 +52,9 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
 
   void _selectMode(String mode) {
     setState(() {
-      _mode = mode;
+      _mode        = mode;
       _screenState = 'loading';
     });
-    // Simulate AI processing delay
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) setState(() => _screenState = 'results');
     });
@@ -67,17 +63,29 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
   void _reset() {
     setState(() {
       _screenState = 'split';
-      _mode = '';
-      _nameController.text = _mockResult['name'];
-      _kcalController.text = _mockResult['kcal'].toString();
+      _mode        = '';
+      _nameController.text    = _mockResult['name'];
+      _kcalController.text    = _mockResult['kcal'].toString();
       _proteinController.text = _mockResult['protein'].toString();
-      _carbsController.text = _mockResult['carbs'].toString();
-      _fatController.text = _mockResult['fat'].toString();
+      _carbsController.text   = _mockResult['carbs'].toString();
+      _fatController.text     = _mockResult['fat'].toString();
     });
   }
 
   void _logMeal(BuildContext context) {
-    // TODO: wire up to real logging system
+    final state = context.read<AppState>();
+    final kcal  = int.tryParse(_kcalController.text) ?? 0;
+    if (kcal > 0) {
+      state.addEntry(
+        DateTime.now(),
+        LogEntry(
+          calories: kcal,
+          name: _nameController.text.isEmpty ? null : _nameController.text,
+          label: 'Analyse',
+          loggedAt: DateTime.now(),
+        ),
+      );
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: AppColors.midBrown,
@@ -94,16 +102,16 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return Container(
       decoration: const BoxDecoration(gradient: AppGradient.background),
       child: SafeArea(
-        child: _isPremium ? _buildPremiumFlow() : _buildLockedScreen(),
+        child: state.isPremium ? _buildPremiumFlow() : _buildLockedScreen(),
       ),
     );
   }
 
-  // ── Free user locked screen ───────────────────────────────
   Widget _buildLockedScreen() {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
@@ -111,10 +119,7 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('analyse', style: AppTextStyles.body),
-          Text(
-            'AI food\nanalysis',
-            style: AppTextStyles.titleLarge.copyWith(fontSize: 40),
-          ),
+          Text('AI food\nanalysis', style: AppTextStyles.titleLarge.copyWith(fontSize: 40)),
           const SizedBox(height: 24),
           Container(
             width: double.infinity,
@@ -127,8 +132,7 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
             child: Column(
               children: [
                 Container(
-                  width: 56,
-                  height: 56,
+                  width: 56, height: 56,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white.withOpacity(0.08),
@@ -139,11 +143,7 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  'elaarra premium',
-                  style: AppTextStyles.titleLarge.copyWith(fontSize: 24),
-                  textAlign: TextAlign.center,
-                ),
+                Text('elaarra premium', style: AppTextStyles.titleLarge.copyWith(fontSize: 24), textAlign: TextAlign.center),
                 const SizedBox(height: 8),
                 Text(
                   'Point your camera at any meal or nutrition label and let AI do the work. No more second-guessing.',
@@ -152,29 +152,16 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
                 ),
                 const SizedBox(height: 20),
                 GestureDetector(
-                  onTap: () {
-                    // TODO: open subscription flow
-                  },
+                  onTap: () {},
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 15),
-                    decoration: BoxDecoration(
-                      color: AppColors.cream,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Text(
-                      'Unlock premium',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.button,
-                    ),
+                    decoration: BoxDecoration(color: AppColors.cream, borderRadius: BorderRadius.circular(14)),
+                    child: Text('Unlock premium', textAlign: TextAlign.center, style: AppTextStyles.button),
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  '£4.99 / month · cancel anytime',
-                  style: AppTextStyles.caption.copyWith(fontSize: 10),
-                  textAlign: TextAlign.center,
-                ),
+                Text('£4.99 / month · cancel anytime', style: AppTextStyles.caption.copyWith(fontSize: 10), textAlign: TextAlign.center),
               ],
             ),
           ),
@@ -202,21 +189,15 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
           Icon(icon, color: AppColors.blush, size: 20),
           const SizedBox(width: 14),
           Expanded(
-            child: Text(
-              text,
-              style: AppTextStyles.label.copyWith(
-                color: AppColors.blush,
-                fontSize: 12,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
+            child: Text(text, style: AppTextStyles.label.copyWith(
+              color: AppColors.blush, fontSize: 12, fontWeight: FontWeight.w300,
+            )),
           ),
         ],
       ),
     );
   }
 
-  // ── Premium flow ──────────────────────────────────────────
   Widget _buildPremiumFlow() {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -228,7 +209,6 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
     );
   }
 
-  // ── Split view ────────────────────────────────────────────
   Widget _buildSplitView() {
     return SingleChildScrollView(
       key: const ValueKey('split'),
@@ -237,145 +217,73 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('analyse', style: AppTextStyles.body),
-          Text(
-            'What would\nyou like to do?',
-            style: AppTextStyles.titleLarge.copyWith(fontSize: 40),
-          ),
+          Text('What would\nyou like to do?', style: AppTextStyles.titleLarge.copyWith(fontSize: 40)),
           const SizedBox(height: 28),
-          _buildModeCard(
-            mode: 'food',
-            icon: Icons.camera_alt_outlined,
-            title: 'Scan a meal',
-            subtitle: 'Point at your food for an AI calorie estimate',
-            isHighlighted: true,
-          ),
+          _buildModeCard(mode: 'food', icon: Icons.camera_alt_outlined, title: 'Scan a meal', subtitle: 'Point at your food for an AI calorie estimate', isHighlighted: true),
           const SizedBox(height: 12),
-          _buildModeCard(
-            mode: 'label',
-            icon: Icons.qr_code_scanner_outlined,
-            title: 'Scan a label',
-            subtitle: 'Read nutrition info directly from packaging',
-            isHighlighted: false,
-          ),
+          _buildModeCard(mode: 'label', icon: Icons.qr_code_scanner_outlined, title: 'Scan a label', subtitle: 'Read nutrition info directly from packaging', isHighlighted: false),
           const SizedBox(height: 24),
-          Text(
-            'Results are estimates — always review before logging',
-            style: AppTextStyles.caption.copyWith(fontSize: 10),
-            textAlign: TextAlign.center,
-          ),
+          Text('Results are estimates — always review before logging', style: AppTextStyles.caption.copyWith(fontSize: 10), textAlign: TextAlign.center),
         ],
       ),
     );
   }
 
-  Widget _buildModeCard({
-    required String mode,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool isHighlighted,
-  }) {
+  Widget _buildModeCard({required String mode, required IconData icon, required String title, required String subtitle, required bool isHighlighted}) {
     return GestureDetector(
       onTap: () => _selectMode(mode),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isHighlighted
-              ? Colors.white.withOpacity(0.95)
-              : Colors.white.withOpacity(0.08),
+          color: isHighlighted ? Colors.white.withOpacity(0.95) : Colors.white.withOpacity(0.08),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isHighlighted
-                ? Colors.transparent
-                : AppColors.blush.withOpacity(0.2),
-          ),
+          border: Border.all(color: isHighlighted ? Colors.transparent : AppColors.blush.withOpacity(0.2)),
         ),
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 48, height: 48,
               decoration: BoxDecoration(
-                color: isHighlighted
-                    ? AppColors.cream
-                    : Colors.white.withOpacity(0.08),
+                color: isHighlighted ? AppColors.cream : Colors.white.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isHighlighted
-                      ? AppColors.blush
-                      : AppColors.blush.withOpacity(0.3),
-                ),
+                border: Border.all(color: isHighlighted ? AppColors.blush : AppColors.blush.withOpacity(0.3)),
               ),
-              child: Icon(
-                icon,
-                color: isHighlighted ? AppColors.midBrown : AppColors.blush,
-                size: 22,
-              ),
+              child: Icon(icon, color: isHighlighted ? AppColors.midBrown : AppColors.blush, size: 22),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: AppTextStyles.titleLarge.copyWith(
-                      fontSize: 20,
-                      color: isHighlighted ? AppColors.darkBrown : AppColors.cream,
-                    ),
-                  ),
+                  Text(title, style: AppTextStyles.titleLarge.copyWith(fontSize: 20, color: isHighlighted ? AppColors.darkBrown : AppColors.cream)),
                   const SizedBox(height: 3),
-                  Text(
-                    subtitle,
-                    style: AppTextStyles.label.copyWith(
-                      fontSize: 11,
-                      color: isHighlighted ? AppColors.midBrown : AppColors.blush,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
+                  Text(subtitle, style: AppTextStyles.label.copyWith(fontSize: 11, color: isHighlighted ? AppColors.midBrown : AppColors.blush, fontWeight: FontWeight.w300)),
                 ],
               ),
             ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: isHighlighted ? AppColors.sienna : AppColors.blush.withOpacity(0.4),
-              size: 14,
-            ),
+            Icon(Icons.arrow_forward_ios, color: isHighlighted ? AppColors.sienna : AppColors.blush.withOpacity(0.4), size: 14),
           ],
         ),
       ),
     );
   }
 
-  // ── Loading view ──────────────────────────────────────────
   Widget _buildLoadingView() {
     return Center(
       key: const ValueKey('loading'),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-            color: AppColors.cream,
-            strokeWidth: 1.5,
-          ),
+          const CircularProgressIndicator(color: AppColors.cream, strokeWidth: 1.5),
           const SizedBox(height: 24),
-          Text(
-            _mode == 'food'
-                ? 'Analysing your meal...'
-                : 'Reading the label...',
-            style: AppTextStyles.titleLarge.copyWith(fontSize: 22),
-          ),
+          Text(_mode == 'food' ? 'Analysing your meal...' : 'Reading the label...', style: AppTextStyles.titleLarge.copyWith(fontSize: 22)),
           const SizedBox(height: 8),
-          Text(
-            'This usually takes a few seconds.',
-            style: AppTextStyles.body.copyWith(fontSize: 12),
-          ),
+          Text('This usually takes a few seconds.', style: AppTextStyles.body.copyWith(fontSize: 12)),
         ],
       ),
     );
   }
 
-  // ── Results view ──────────────────────────────────────────
   Widget _buildResultsView() {
     return SingleChildScrollView(
       key: const ValueKey('results'),
@@ -384,16 +292,10 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('analyse', style: AppTextStyles.body),
-          Text(
-            'Here\'s what\nwe found',
-            style: AppTextStyles.titleLarge.copyWith(fontSize: 40),
-          ),
+          Text('Here\'s what\nwe found', style: AppTextStyles.titleLarge.copyWith(fontSize: 40)),
           const SizedBox(height: 20),
-
-          // Photo placeholder — replace with real image later
           Container(
-            width: double.infinity,
-            height: 140,
+            width: double.infinity, height: 140,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.08),
               borderRadius: BorderRadius.circular(16),
@@ -404,16 +306,11 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
               children: [
                 Icon(Icons.image_outlined, color: AppColors.blush.withOpacity(0.4), size: 32),
                 const SizedBox(height: 6),
-                Text(
-                  'Photo preview',
-                  style: AppTextStyles.caption.copyWith(fontSize: 10),
-                ),
+                Text('Photo preview', style: AppTextStyles.caption.copyWith(fontSize: 10)),
               ],
             ),
           ),
           const SizedBox(height: 14),
-
-          // AI result card
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(18),
@@ -424,16 +321,8 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'AI IDENTIFIED',
-                  style: AppTextStyles.caption.copyWith(
-                    fontSize: 9,
-                    color: AppColors.midBrown,
-                    letterSpacing: 0.14,
-                  ),
-                ),
+                Text('AI IDENTIFIED', style: AppTextStyles.caption.copyWith(fontSize: 9, color: AppColors.midBrown, letterSpacing: 0.14)),
                 const SizedBox(height: 6),
-                // Editable name
                 TextField(
                   controller: _nameController,
                   style: AppTextStyles.titleMedium.copyWith(fontSize: 22),
@@ -441,15 +330,10 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
-                    suffixIcon: Icon(
-                      Icons.edit_outlined,
-                      size: 14,
-                      color: AppColors.sienna.withOpacity(0.6),
-                    ),
+                    suffixIcon: Icon(Icons.edit_outlined, size: 14, color: AppColors.sienna.withOpacity(0.6)),
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Macro grid
                 Row(
                   children: [
                     _buildEditableMacro('kcal', _kcalController, primary: true),
@@ -465,25 +349,13 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.cream,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Tap any value to edit',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.caption.copyWith(
-                      fontSize: 10,
-                      color: AppColors.midBrown,
-                    ),
-                  ),
+                  decoration: BoxDecoration(color: AppColors.cream, borderRadius: BorderRadius.circular(8)),
+                  child: Text('Tap any value to edit', textAlign: TextAlign.center, style: AppTextStyles.caption.copyWith(fontSize: 10, color: AppColors.midBrown)),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 14),
-
-          // Action buttons
           Row(
             children: [
               GestureDetector(
@@ -495,10 +367,7 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: AppColors.blush.withOpacity(0.3)),
                   ),
-                  child: Text(
-                    'Try again',
-                    style: AppTextStyles.button.copyWith(color: AppColors.cream),
-                  ),
+                  child: Text('Try again', style: AppTextStyles.button.copyWith(color: AppColors.cream)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -507,15 +376,8 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
                   onTap: () => _logMeal(context),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 15),
-                    decoration: BoxDecoration(
-                      color: AppColors.cream,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Text(
-                      'Log this meal',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.button,
-                    ),
+                    decoration: BoxDecoration(color: AppColors.cream, borderRadius: BorderRadius.circular(14)),
+                    child: Text('Log this meal', textAlign: TextAlign.center, style: AppTextStyles.button),
                   ),
                 ),
               ),
@@ -526,11 +388,7 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
     );
   }
 
-  Widget _buildEditableMacro(
-    String label,
-    TextEditingController controller, {
-    bool primary = false,
-  }) {
+  Widget _buildEditableMacro(String label, TextEditingController controller, {bool primary = false}) {
     return Expanded(
       flex: primary ? 2 : 1,
       child: Column(
@@ -540,23 +398,10 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             textAlign: TextAlign.center,
-            style: AppTextStyles.titleMedium.copyWith(
-              fontSize: primary ? 28 : 18,
-              color: AppColors.darkBrown,
-            ),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-            ),
+            style: AppTextStyles.titleMedium.copyWith(fontSize: primary ? 28 : 18, color: AppColors.darkBrown),
+            decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
           ),
-          Text(
-            label,
-            style: AppTextStyles.label.copyWith(
-              fontSize: 9,
-              color: AppColors.midBrown,
-            ),
-          ),
+          Text(label, style: AppTextStyles.label.copyWith(fontSize: 9, color: AppColors.midBrown)),
         ],
       ),
     );
