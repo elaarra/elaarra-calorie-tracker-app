@@ -1,61 +1,56 @@
 import 'package:flutter/material.dart';
 import '../screens/log/log_screen.dart';
 import '../screens/goals/goals_screen.dart';
+import '../services/database_service.dart';
 
 class AppState extends ChangeNotifier {
   // ── User profile ──────────────────────────────────────────
-  String userName = 'Ella';
+  String userName = 'there';
   int dailyTarget = 1650;
   bool isPremium  = false;
+  bool _isLoading = true;
 
-  // ── Log entries keyed by date yyyy-MM-dd ──────────────────
-  final Map<String, List<LogEntry>> _allEntries = {
-    _dateKey(DateTime.now()): [
-      LogEntry(
-        calories: 320,
-        name: 'Porridge with berries',
-        label: 'Breakfast',
-        loggedAt: DateTime.now().subtract(const Duration(hours: 6)),
-      ),
-      LogEntry(
-        calories: 480,
-        name: 'Grilled chicken salad',
-        label: 'Lunch',
-        loggedAt: DateTime.now().subtract(const Duration(hours: 3)),
-      ),
-      LogEntry(
-        calories: 140,
-        name: 'Greek yoghurt',
-        label: 'Snack',
-        loggedAt: DateTime.now().subtract(const Duration(hours: 1)),
-      ),
-    ],
-  };
+  bool get isLoading => _isLoading;
 
-  // ── Weight log ────────────────────────────────────────────
-  final List<WeightEntry> weightLog = [
-    WeightEntry(weight: 68.0, loggedAt: DateTime.now().subtract(const Duration(days: 42))),
-    WeightEntry(weight: 67.2, loggedAt: DateTime.now().subtract(const Duration(days: 28))),
-    WeightEntry(weight: 66.5, loggedAt: DateTime.now().subtract(const Duration(days: 14))),
-    WeightEntry(weight: 65.6, loggedAt: DateTime.now().subtract(const Duration(days: 3))),
-  ];
-
-  // ── Goals ─────────────────────────────────────────────────
-  final List<Goal> goals = [
-    Goal(
-      type: 'Manage weight',
-      targetWeight: 62,
-      startingWeight: 68,
-      startedAt: DateTime.now().subtract(const Duration(days: 42)),
-      weeklyRate: 0.4,
-    ),
-  ];
+  // ── In-memory data (mirrored from SQLite) ─────────────────
+  final Map<String, List<LogEntry>> _allEntries = {};
+  final List<WeightEntry> weightLog = [];
+  final List<Goal> goals = [];
 
   // ── Date helper ───────────────────────────────────────────
   static String _dateKey(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-'
       '${d.day.toString().padLeft(2, '0')}';
 
+  // ── Initialise — load everything from SQLite ──────────────
+  Future<void> init() async {
+    final db = DatabaseService.instance;
+
+    // Load profile
+    final profile = await db.getProfile();
+    if (profile != null) {
+      userName    = profile['user_name'] as String;
+      dailyTarget = profile['daily_target'] as int;
+      isPremium   = (profile['is_premium'] as int) == 1;
+    }
+
+    // Load entries
+    final entries = await db.getAllEntries();
+    _allEntries.addAll(entries);
+
+    // Load weight
+    final weights = await db.getAllWeightEntries();
+    weightLog.addAll(weights);
+
+    // Load goals
+    final loadedGoals = await db.getAllGoals();
+    goals.addAll(loadedGoals);
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  // ── Entries ───────────────────────────────────────────────
   List<LogEntry> entriesFor(DateTime date) =>
       _allEntries[_dateKey(date)] ?? [];
 
@@ -72,6 +67,7 @@ class AppState extends ChangeNotifier {
   double get todayProgress =>
       (todayConsumed / dailyTarget).clamp(0.0, 1.0);
 
+  // ── Streak ────────────────────────────────────────────────
   int get streakDays {
     int streak = 0;
     DateTime day = DateTime.now();
@@ -84,6 +80,7 @@ class AppState extends ChangeNotifier {
     return streak;
   }
 
+  // ── Averages ──────────────────────────────────────────────
   double get avgCalories {
     final days = _allEntries.values.where((e) => e.isNotEmpty).toList();
     if (days.isEmpty) return 0;
@@ -96,6 +93,7 @@ class AppState extends ChangeNotifier {
   int get daysTracked =>
       _allEntries.values.where((e) => e.isNotEmpty).length;
 
+  // ── Calorie history for chart ─────────────────────────────
   List<Map<String, dynamic>> get calorieHistory {
     return List.generate(14, (i) {
       final date     = DateTime.now().subtract(Duration(days: 13 - i));
@@ -105,9 +103,11 @@ class AppState extends ChangeNotifier {
     });
   }
 
+  // ── Current weight ────────────────────────────────────────
   double? get currentWeight =>
       weightLog.isNotEmpty ? weightLog.last.weight : null;
 
+  // ── Affirmation ───────────────────────────────────────────
   String get affirmation {
     if (daysTracked == 0) {
       return 'Welcome to elaarra. Every journey starts with a single day.';
@@ -119,6 +119,7 @@ class AppState extends ChangeNotifier {
     return 'A rich few days. Every day is a fresh opportunity — you\'ve got this.';
   }
 
+  // ── Encouragement ─────────────────────────────────────────
   String get encouragement {
     if (isOverToday) return 'Every day is a fresh start — tomorrow is yours to own.';
     final pct = todayProgress * 100;
@@ -127,43 +128,83 @@ class AppState extends ChangeNotifier {
     return 'A great start. Your consistency is building something real.';
   }
 
-  void addEntry(DateTime date, LogEntry entry) {
+  // ── Add log entry — saves to SQLite immediately ───────────
+  Future<void> addEntry(DateTime date, LogEntry entry) async {
     final key = _dateKey(date);
     _allEntries.putIfAbsent(key, () => []);
     _allEntries[key]!.add(entry);
+    await DatabaseService.instance.insertLogEntry(date, entry);
     notifyListeners();
   }
 
-  void deleteEntry(DateTime date, int index) {
+  // ── Delete log entry ──────────────────────────────────────
+  Future<void> deleteEntry(DateTime date, int index) async {
     final key = _dateKey(date);
     if (_allEntries[key] != null && index < _allEntries[key]!.length) {
       _allEntries[key]!.removeAt(index);
+      await DatabaseService.instance.deleteLogEntry(date, index);
       notifyListeners();
     }
   }
 
-  void addWeight(WeightEntry entry) {
+  // ── Add weight entry ──────────────────────────────────────
+  Future<void> addWeight(WeightEntry entry) async {
     weightLog.add(entry);
+    await DatabaseService.instance.insertWeightEntry(entry);
     notifyListeners();
   }
 
-  void addGoal(Goal goal) {
+  // ── Add goal ──────────────────────────────────────────────
+  Future<void> addGoal(Goal goal) async {
     goals.add(goal);
+    await DatabaseService.instance.insertGoal(goal);
     notifyListeners();
   }
 
-  void updateDailyTarget(int target) {
-    dailyTarget = target;
-    notifyListeners();
-  }
-
-  void updateUserName(String name) {
+  // ── Update profile ────────────────────────────────────────
+  Future<void> updateUserName(String name) async {
     userName = name;
+    await _saveProfile();
     notifyListeners();
   }
 
-  void togglePremium() {
-    isPremium = !isPremium;
+  Future<void> updateDailyTarget(int target) async {
+    dailyTarget = target;
+    await _saveProfile();
     notifyListeners();
+  }
+
+  Future<void> setOnboardingComplete() async {
+    await DatabaseService.instance.setOnboardingComplete();
+  }
+
+  Future<void> updateProfileFromOnboarding({
+    required String name,
+    required int target,
+  }) async {
+    userName    = name;
+    dailyTarget = target;
+    await DatabaseService.instance.saveProfile(
+      userName: name,
+      dailyTarget: target,
+      isPremium: isPremium,
+      onboardingComplete: true,
+    );
+    notifyListeners();
+  }
+
+  Future<void> togglePremium() async {
+    isPremium = !isPremium;
+    await _saveProfile();
+    notifyListeners();
+  }
+
+  Future<void> _saveProfile() async {
+    await DatabaseService.instance.saveProfile(
+      userName: userName,
+      dailyTarget: dailyTarget,
+      isPremium: isPremium,
+      onboardingComplete: true,
+    );
   }
 }
