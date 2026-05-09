@@ -60,9 +60,6 @@ class _AppLoaderState extends State<_AppLoader> {
   }
 
   Future<void> _load() async {
-    // Temporary: force sign out to test auth screen
-    await FirebaseAuth.instance.signOut();
-
     final state = context.read<AppState>();
     await state.init();
 
