@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
+import '../../state/app_state.dart';
+import '../../services/database_service.dart';
 import '../main_shell.dart';
+import '../onboarding/onboarding_screen.dart';
 import 'register_screen.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -15,8 +19,8 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final _emailController    = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _loading     = false;
-  bool _obscure     = true;
+  bool _loading  = false;
+  bool _obscure  = true;
   String? _error;
 
   @override
@@ -26,20 +30,36 @@ class _AuthScreenState extends State<AuthScreen> {
     super.dispose();
   }
 
+  Future<void> _navigateAfterAuth() async {
+    final onboardingDone =
+        await DatabaseService.instance.isOnboardingComplete();
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) =>
+            onboardingDone ? const MainShell() : const OnboardingScreen(),
+      ),
+      (route) => false,
+    );
+  }
+
   Future<void> _signInWithEmail() async {
+    if (_emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty) {
+      setState(() => _error = 'Please enter your email and password.');
+      return;
+    }
     setState(() { _loading = true; _error = null; });
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainShell()),
-        );
-      }
+      await _navigateAfterAuth();
     } on FirebaseAuthException catch (e) {
-      setState(() => _error = _friendlyError(e.code));
+      if (mounted) setState(() => _error = _friendlyError(e.code));
+    } catch (e) {
+      if (mounted) setState(() => _error = 'Something went wrong. Please try again.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -59,26 +79,66 @@ class _AuthScreenState extends State<AuthScreen> {
         idToken: googleAuth.idToken,
       );
       await FirebaseAuth.instance.signInWithCredential(credential);
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainShell()),
-        );
-      }
+      await _navigateAfterAuth();
     } on FirebaseAuthException catch (e) {
-      setState(() => _error = _friendlyError(e.code));
+      if (mounted) setState(() => _error = _friendlyError(e.code));
+    } catch (e) {
+      if (mounted) setState(() => _error = 'Google sign in failed. Please try again.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
+  Future<void> _sendPasswordReset() async {
+    if (_emailController.text.trim().isEmpty) {
+      setState(() => _error = 'Enter your email above first.');
+      return;
+    }
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: _emailController.text.trim(),
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.midBrown,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            content: Text(
+              'Password reset email sent.',
+              style: AppTextStyles.label.copyWith(
+                color: AppColors.cream, fontSize: 13,
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error =
+            'Could not send reset email. Check the address and try again.');
+      }
+    }
+  }
+
   String _friendlyError(String code) {
     switch (code) {
-      case 'user-not-found':   return 'No account found with that email.';
-      case 'wrong-password':   return 'Incorrect password. Please try again.';
-      case 'invalid-email':    return 'Please enter a valid email address.';
-      case 'user-disabled':    return 'This account has been disabled.';
-      case 'too-many-requests': return 'Too many attempts. Please try again later.';
-      default: return 'Something went wrong. Please try again.';
+      case 'user-not-found':
+        return 'No account found with that email.';
+      case 'wrong-password':
+        return 'Incorrect password. Please try again.';
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'invalid-credential':
+        return 'Incorrect email or password. Please try again.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'too-many-requests':
+        return 'Too many attempts. Please try again later.';
+      default:
+        return 'Something went wrong ($code). Please try again.';
     }
   }
 
@@ -105,8 +165,6 @@ class _AuthScreenState extends State<AuthScreen> {
                   style: AppTextStyles.body,
                 ),
                 const SizedBox(height: 36),
-
-                // Email field
                 _buildInputField(
                   controller: _emailController,
                   label: 'Email',
@@ -114,8 +172,6 @@ class _AuthScreenState extends State<AuthScreen> {
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 10),
-
-                // Password field
                 _buildInputField(
                   controller: _passwordController,
                   label: 'Password',
@@ -124,14 +180,15 @@ class _AuthScreenState extends State<AuthScreen> {
                   suffix: GestureDetector(
                     onTap: () => setState(() => _obscure = !_obscure),
                     child: Icon(
-                      _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                      color: AppColors.sienna, size: 18,
+                      _obscure
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: AppColors.sienna,
+                      size: 18,
                     ),
                   ),
                 ),
                 const SizedBox(height: 6),
-
-                // Forgot password
                 Align(
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
@@ -139,14 +196,11 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: Text(
                       'Forgot password?',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppColors.blush,
-                        fontSize: 11,
+                        color: AppColors.blush, fontSize: 11,
                       ),
                     ),
                   ),
                 ),
-
-                // Error message
                 if (_error != null) ...[
                   const SizedBox(height: 12),
                   Container(
@@ -164,48 +218,36 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ],
                 const SizedBox(height: 20),
-
-                // Sign in button
                 _buildPrimaryButton(
                   label: 'Sign in',
                   onTap: _signInWithEmail,
                   loading: _loading,
                 ),
                 const SizedBox(height: 16),
-
-                // Divider
                 Row(
                   children: [
-                    Expanded(child: Divider(color: AppColors.blush.withOpacity(0.3))),
+                    Expanded(
+                      child: Divider(color: AppColors.blush.withOpacity(0.3)),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('or', style: AppTextStyles.caption.copyWith(fontSize: 11)),
+                      child: Text(
+                        'or',
+                        style: AppTextStyles.caption.copyWith(fontSize: 11),
+                      ),
                     ),
-                    Expanded(child: Divider(color: AppColors.blush.withOpacity(0.3))),
+                    Expanded(
+                      child: Divider(color: AppColors.blush.withOpacity(0.3)),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // Google sign in
                 _buildSocialButton(
                   label: 'Continue with Google',
                   icon: Icons.g_mobiledata_rounded,
                   onTap: _signInWithGoogle,
                 ),
-                const SizedBox(height: 10),
-
-                // Apple sign in
-                _buildSocialButton(
-                  label: 'Continue with Apple',
-                  icon: Icons.apple,
-                  onTap: () {
-                    // TODO: implement Apple sign in
-                    setState(() => _error = 'Apple sign in coming soon.');
-                  },
-                ),
                 const SizedBox(height: 32),
-
-                // Register link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -216,7 +258,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     GestureDetector(
                       onTap: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const RegisterScreen(),
+                        ),
                       ),
                       child: Text(
                         'Create one',
@@ -237,33 +281,6 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Future<void> _sendPasswordReset() async {
-    if (_emailController.text.trim().isEmpty) {
-      setState(() => _error = 'Enter your email above first.');
-      return;
-    }
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(
-        email: _emailController.text.trim(),
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.midBrown,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            content: Text(
-              'Password reset email sent.',
-              style: AppTextStyles.label.copyWith(color: AppColors.cream, fontSize: 13),
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() => _error = 'Could not send reset email. Check the address and try again.');
-    }
-  }
-
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -281,9 +298,12 @@ class _AuthScreenState extends State<AuthScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTextStyles.label.copyWith(
-            fontSize: 10, color: AppColors.midBrown,
-          )),
+          Text(
+            label,
+            style: AppTextStyles.label.copyWith(
+              fontSize: 10, color: AppColors.midBrown,
+            ),
+          ),
           Row(
             children: [
               Expanded(
@@ -336,7 +356,11 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
               )
-            : Text(label, textAlign: TextAlign.center, style: AppTextStyles.button),
+            : Text(
+                label,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.button,
+              ),
       ),
     );
   }
@@ -361,7 +385,10 @@ class _AuthScreenState extends State<AuthScreen> {
           children: [
             Icon(icon, color: AppColors.cream, size: 20),
             const SizedBox(width: 10),
-            Text(label, style: AppTextStyles.button.copyWith(color: AppColors.cream)),
+            Text(
+              label,
+              style: AppTextStyles.button.copyWith(color: AppColors.cream),
+            ),
           ],
         ),
       ),
