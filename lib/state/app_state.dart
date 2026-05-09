@@ -20,22 +20,36 @@ class AppState extends ChangeNotifier {
       '${d.year}-${d.month.toString().padLeft(2, '0')}-'
       '${d.day.toString().padLeft(2, '0')}';
 
-  // ── Init — loads from Firestore first, falls back to SQLite ──
+  // ── Init — loads from Firestore if valid, else SQLite ─────
   Future<void> init() async {
     final db        = DatabaseService.instance;
     final firestore = FirestoreService.instance;
 
-    // Try Firestore first
-    final cloudData = await firestore.pullAllData();
+    // Load local data first
+    final localProfile = await db.getProfile();
+    final localOnboardingDone = localProfile != null &&
+        (localProfile['onboarding_complete'] as int) == 1;
+    final localName = localProfile?['user_name'] as String? ?? 'there';
 
-    if (cloudData.isNotEmpty) {
-      // Cloud data found — use it and sync to local SQLite
-      final profile = cloudData['profile'] as Map<String, dynamic>?;
-      if (profile != null) {
-        userName    = profile['userName'] as String? ?? 'there';
-        dailyTarget = profile['dailyTarget'] as int? ?? 1650;
-        isPremium   = profile['isPremium'] as bool? ?? false;
-      }
+    // Try Firestore
+    final cloudData = await firestore.pullAllData();
+    final cloudProfile = cloudData['profile'] as Map<String, dynamic>?;
+    final cloudName = cloudProfile?['userName'] as String? ?? 'there';
+
+    // Only use cloud data if it has meaningful profile data
+    // i.e. the user has actually completed onboarding on another device
+    final cloudIsValid = cloudProfile != null &&
+        cloudName != 'there' &&
+        cloudName.isNotEmpty;
+
+    // Prefer cloud if valid AND local hasn't been personalised yet
+    final useCloud = cloudIsValid && !localOnboardingDone;
+
+    if (useCloud) {
+      // Cloud data is more complete — use it
+      userName    = cloudName;
+      dailyTarget = cloudProfile['dailyTarget'] as int? ?? 1650;
+      isPremium   = cloudProfile['isPremium'] as bool? ?? false;
 
       final cloudEntries = cloudData['logEntries']
           as Map<String, List<LogEntry>>? ?? {};
@@ -47,16 +61,15 @@ class AppState extends ChangeNotifier {
       final cloudGoals = cloudData['goals'] as List<Goal>? ?? [];
       goals.addAll(cloudGoals);
 
-      // Save cloud data to local SQLite for offline use
+      // Sync cloud down to local SQLite
       await _syncCloudToLocal(db, cloudEntries, cloudWeights, cloudGoals);
 
     } else {
-      // No cloud data — load from local SQLite
-      final profile = await db.getProfile();
-      if (profile != null) {
-        userName    = profile['user_name'] as String;
-        dailyTarget = profile['daily_target'] as int;
-        isPremium   = (profile['is_premium'] as int) == 1;
+      // Use local data — it's either more up to date or cloud has nothing useful
+      if (localProfile != null) {
+        userName    = localProfile['user_name'] as String;
+        dailyTarget = localProfile['daily_target'] as int;
+        isPremium   = (localProfile['is_premium'] as int) == 1;
       }
       final entries = await db.getAllEntries();
       _allEntries.addAll(entries);
@@ -64,6 +77,11 @@ class AppState extends ChangeNotifier {
       weightLog.addAll(weights);
       final loadedGoals = await db.getAllGoals();
       goals.addAll(loadedGoals);
+
+      // If local has real data, push it up to Firestore to keep in sync
+      if (localOnboardingDone) {
+        _pushLocalToCloud(entries, weights, loadedGoals);
+      }
     }
 
     _isLoading = false;
@@ -77,7 +95,6 @@ class AppState extends ChangeNotifier {
     List<Goal> goals,
   ) async {
     try {
-      // Clear local and rewrite from cloud
       await db.clearAllData();
       await db.saveProfile(
         userName: userName,
@@ -98,7 +115,36 @@ class AppState extends ChangeNotifier {
         await db.insertGoal(g);
       }
     } catch (e) {
-      // Local sync failed — cloud data still in memory, app works fine
+      // Local sync failed — cloud data still in memory
+    }
+  }
+
+  void _pushLocalToCloud(
+    Map<String, List<LogEntry>> entries,
+    List<WeightEntry> weights,
+    List<Goal> goals,
+  ) async {
+    try {
+      final firestore = FirestoreService.instance;
+      firestore.saveProfile(
+        userName: userName,
+        dailyTarget: dailyTarget,
+        isPremium: isPremium,
+      );
+      for (final entry in entries.entries) {
+        final date = DateTime.parse(entry.key);
+        for (final log in entry.value) {
+          firestore.saveLogEntry(date, log);
+        }
+      }
+      for (final w in weights) {
+        firestore.saveWeightEntry(w);
+      }
+      for (final g in goals) {
+        firestore.saveGoal(g);
+      }
+    } catch (e) {
+      // Background push failed silently
     }
   }
 
@@ -174,14 +220,14 @@ class AppState extends ChangeNotifier {
     return 'A great start. Your consistency is building something real.';
   }
 
-  // ── Add log entry — saves locally and to Firestore ────────
+  // ── Add log entry ─────────────────────────────────────────
   Future<void> addEntry(DateTime date, LogEntry entry) async {
     final key = _dateKey(date);
     _allEntries.putIfAbsent(key, () => []);
     _allEntries[key]!.add(entry);
     notifyListeners();
     await DatabaseService.instance.insertLogEntry(date, entry);
-    FirestoreService.instance.saveLogEntry(date, entry); // background
+    FirestoreService.instance.saveLogEntry(date, entry);
   }
 
   // ── Delete log entry ──────────────────────────────────────
@@ -192,7 +238,7 @@ class AppState extends ChangeNotifier {
       _allEntries[key]!.removeAt(index);
       notifyListeners();
       await DatabaseService.instance.deleteLogEntry(date, index);
-      FirestoreService.instance.deleteLogEntry(date, entry.loggedAt); // background
+      FirestoreService.instance.deleteLogEntry(date, entry.loggedAt);
     }
   }
 
@@ -201,7 +247,7 @@ class AppState extends ChangeNotifier {
     weightLog.add(entry);
     notifyListeners();
     await DatabaseService.instance.insertWeightEntry(entry);
-    FirestoreService.instance.saveWeightEntry(entry); // background
+    FirestoreService.instance.saveWeightEntry(entry);
   }
 
   // ── Add goal ──────────────────────────────────────────────
@@ -209,7 +255,7 @@ class AppState extends ChangeNotifier {
     goals.add(goal);
     notifyListeners();
     await DatabaseService.instance.insertGoal(goal);
-    FirestoreService.instance.saveGoal(goal); // background
+    FirestoreService.instance.saveGoal(goal);
   }
 
   // ── Update profile ────────────────────────────────────────
@@ -261,7 +307,7 @@ class AppState extends ChangeNotifier {
     isPremium   = false;
     notifyListeners();
     await DatabaseService.instance.clearAllData();
-    FirestoreService.instance.clearAllData(); // background
+    FirestoreService.instance.clearAllData();
   }
 
   Future<void> _saveProfile() async {
