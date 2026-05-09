@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
-import '../../state/app_state.dart';
 import '../../services/database_service.dart';
 import '../main_shell.dart';
 import '../onboarding/onboarding_screen.dart';
@@ -59,7 +57,8 @@ class _AuthScreenState extends State<AuthScreen> {
     } on FirebaseAuthException catch (e) {
       if (mounted) setState(() => _error = _friendlyError(e.code));
     } catch (e) {
-      if (mounted) setState(() => _error = 'Something went wrong. Please try again.');
+      // Show the full error so we can diagnose it
+      if (mounted) setState(() => _error = 'Error: ${e.toString()}');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -83,7 +82,7 @@ class _AuthScreenState extends State<AuthScreen> {
     } on FirebaseAuthException catch (e) {
       if (mounted) setState(() => _error = _friendlyError(e.code));
     } catch (e) {
-      if (mounted) setState(() => _error = 'Google sign in failed. Please try again.');
+      if (mounted) setState(() => _error = 'Error: ${e.toString()}');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -116,10 +115,7 @@ class _AuthScreenState extends State<AuthScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _error =
-            'Could not send reset email. Check the address and try again.');
-      }
+      if (mounted) setState(() => _error = 'Error: ${e.toString()}');
     }
   }
 
@@ -138,7 +134,7 @@ class _AuthScreenState extends State<AuthScreen> {
       case 'too-many-requests':
         return 'Too many attempts. Please try again later.';
       default:
-        return 'Something went wrong ($code). Please try again.';
+        return 'Sign in failed ($code). Please try again.';
     }
   }
 
@@ -201,18 +197,27 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ),
                 ),
+
+                // Error message — larger, cream coloured, easy to read
                 if (_error != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(10),
+                      color: AppColors.error.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.error.withOpacity(0.4),
+                      ),
                     ),
                     child: Text(
                       _error!,
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.error, fontSize: 12,
+                      style: AppTextStyles.label.copyWith(
+                        color: AppColors.cream,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                        height: 1.5,
                       ),
                     ),
                   ),
