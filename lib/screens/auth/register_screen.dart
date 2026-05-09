@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
-import '../../state/app_state.dart';
+import '../../services/database_service.dart';
+import '../main_shell.dart';
 import '../onboarding/onboarding_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -29,15 +29,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  Future<void> _register() async {
-    setState(() { _error = null; });
+  Future<void> _navigateAfterAuth() async {
+    final onboardingDone =
+        await DatabaseService.instance.isOnboardingComplete();
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) =>
+            onboardingDone ? const MainShell() : const OnboardingScreen(),
+      ),
+      (route) => false,
+    );
+  }
 
-    if (_passwordController.text != _confirmController.text) {
-      setState(() => _error = 'Passwords don\'t match.');
+  Future<void> _register() async {
+    setState(() => _error = null);
+
+    if (_emailController.text.trim().isEmpty) {
+      setState(() => _error = 'Please enter your email.');
       return;
     }
     if (_passwordController.text.length < 6) {
       setState(() => _error = 'Password must be at least 6 characters.');
+      return;
+    }
+    if (_passwordController.text != _confirmController.text) {
+      setState(() => _error = 'Passwords don\'t match.');
       return;
     }
 
@@ -47,15 +64,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (mounted) {
-        // New user — take them through onboarding
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const OnboardingScreen()),
-          (route) => false,
-        );
-      }
+      await _navigateAfterAuth();
     } on FirebaseAuthException catch (e) {
-      setState(() => _error = _friendlyError(e.code));
+      if (mounted) setState(() => _error = _friendlyError(e.code));
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Something went wrong. Please try again.');
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -63,10 +78,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   String _friendlyError(String code) {
     switch (code) {
-      case 'email-already-in-use': return 'An account already exists with that email.';
-      case 'invalid-email':        return 'Please enter a valid email address.';
-      case 'weak-password':        return 'Password is too weak. Use at least 6 characters.';
-      default: return 'Something went wrong. Please try again.';
+      case 'email-already-in-use':
+        return 'An account already exists with that email.';
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+      case 'weak-password':
+        return 'Password is too weak. Use at least 6 characters.';
+      default:
+        return 'Something went wrong ($code). Please try again.';
     }
   }
 
@@ -81,7 +100,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Back button
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
@@ -89,9 +107,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.blush.withOpacity(0.3)),
+                      border: Border.all(
+                        color: AppColors.blush.withOpacity(0.3),
+                      ),
                     ),
-                    child: const Icon(Icons.arrow_back_ios_new, color: AppColors.cream, size: 16),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: AppColors.cream,
+                      size: 16,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -107,8 +131,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: AppTextStyles.body,
                 ),
                 const SizedBox(height: 36),
-
-                // Email
                 _buildInputField(
                   controller: _emailController,
                   label: 'Email',
@@ -116,8 +138,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 10),
-
-                // Password
                 _buildInputField(
                   controller: _passwordController,
                   label: 'Password',
@@ -126,14 +146,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   suffix: GestureDetector(
                     onTap: () => setState(() => _obscure1 = !_obscure1),
                     child: Icon(
-                      _obscure1 ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                      color: AppColors.sienna, size: 18,
+                      _obscure1
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: AppColors.sienna,
+                      size: 18,
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // Confirm password
                 _buildInputField(
                   controller: _confirmController,
                   label: 'Confirm password',
@@ -142,13 +163,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   suffix: GestureDetector(
                     onTap: () => setState(() => _obscure2 = !_obscure2),
                     child: Icon(
-                      _obscure2 ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                      color: AppColors.sienna, size: 18,
+                      _obscure2
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: AppColors.sienna,
+                      size: 18,
                     ),
                   ),
                 ),
-
-                // Error
                 if (_error != null) ...[
                   const SizedBox(height: 12),
                   Container(
@@ -166,8 +188,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ],
                 const SizedBox(height: 24),
-
-                // Register button
                 GestureDetector(
                   onTap: _loading ? null : _register,
                   child: Container(
@@ -194,8 +214,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // Sign in link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -241,9 +259,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTextStyles.label.copyWith(
-            fontSize: 10, color: AppColors.midBrown,
-          )),
+          Text(
+            label,
+            style: AppTextStyles.label.copyWith(
+              fontSize: 10, color: AppColors.midBrown,
+            ),
+          ),
           Row(
             children: [
               Expanded(
