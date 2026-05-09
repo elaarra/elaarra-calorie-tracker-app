@@ -37,6 +37,8 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 flutter:
+  assets:
+    - .env
   uses-material-design: true
   fonts:
     - family: CormorantGaramond
