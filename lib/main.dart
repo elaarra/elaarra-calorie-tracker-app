@@ -60,14 +60,12 @@ class _AppLoaderState extends State<_AppLoader> {
   }
 
   Future<void> _load() async {
-    // Temporary sign out to test auth screen — remove this line after testing
+    // Temporary: force sign out to test auth screen
     await FirebaseAuth.instance.signOut();
 
-    // Initialise local state from SQLite
     final state = context.read<AppState>();
     await state.init();
 
-    // Check Firebase auth state
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
@@ -75,7 +73,6 @@ class _AppLoaderState extends State<_AppLoader> {
       return;
     }
 
-    // Logged in — check if onboarding complete
     final onboardingDone =
         await DatabaseService.instance.isOnboardingComplete();
 
