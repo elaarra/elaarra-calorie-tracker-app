@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
 import '../../state/app_state.dart';
 import '../auth/auth_screen.dart';
+import '../paywall/paywall_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -97,10 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Text(
-              'Sign out?',
-              style: AppTextStyles.titleLarge.copyWith(fontSize: 28),
-            ),
+            Text('Sign out?', style: AppTextStyles.titleLarge.copyWith(fontSize: 28)),
             const SizedBox(height: 8),
             Text(
               'Your data is saved and will be here when you come back.',
@@ -116,11 +114,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: AppColors.cream,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Text(
-                  'Yes, sign out',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.button,
-                ),
+                child: Text('Yes, sign out', textAlign: TextAlign.center,
+                  style: AppTextStyles.button),
               ),
             ),
             const SizedBox(height: 10),
@@ -133,11 +128,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Colors.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Text(
-                  'Cancel',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.button.copyWith(color: AppColors.cream),
-                ),
+                child: Text('Cancel', textAlign: TextAlign.center,
+                  style: AppTextStyles.button.copyWith(color: AppColors.cream)),
               ),
             ),
           ],
@@ -154,6 +146,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
     }
+  }
+
+  void _openPaywall() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.92,
+        minChildSize: 0.92,
+        maxChildSize: 0.92,
+        builder: (_, __) => PaywallScreen(
+          onDismiss: () => Navigator.pop(ctx),
+        ),
+      ),
+    );
   }
 
   void _openNewGoalOptions() {
@@ -181,7 +190,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Text('Start a new goal', style: AppTextStyles.titleLarge.copyWith(fontSize: 28)),
+            Text('Start a new goal',
+              style: AppTextStyles.titleLarge.copyWith(fontSize: 28)),
             const SizedBox(height: 6),
             Text('How would you like to proceed?', style: AppTextStyles.body),
             const SizedBox(height: 20),
@@ -206,7 +216,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: Colors.white.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.tune_outlined, color: AppColors.blush, size: 20),
+                      child: const Icon(Icons.tune_outlined,
+                        color: AppColors.blush, size: 20),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -214,7 +225,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Update my goal', style: AppTextStyles.label.copyWith(
-                            color: AppColors.cream, fontSize: 14, fontWeight: FontWeight.w500,
+                            color: AppColors.cream, fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           )),
                           const SizedBox(height: 3),
                           Text('Recalculate your target — keep all your history.',
@@ -222,7 +234,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios, color: AppColors.blush, size: 13),
+                    const Icon(Icons.arrow_forward_ios,
+                      color: AppColors.blush, size: 13),
                   ],
                 ),
               ),
@@ -258,7 +271,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Fresh start', style: AppTextStyles.label.copyWith(
-                            color: AppColors.cream, fontSize: 14, fontWeight: FontWeight.w500,
+                            color: AppColors.cream, fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           )),
                           const SizedBox(height: 3),
                           Text('Reset everything and start from scratch.',
@@ -266,7 +280,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios, color: AppColors.blush, size: 13),
+                    const Icon(Icons.arrow_forward_ios,
+                      color: AppColors.blush, size: 13),
                   ],
                 ),
               ),
@@ -292,10 +307,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SnackBar(
                 backgroundColor: AppColors.midBrown,
                 behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
                 content: Text(
                   'Daily target updated to $newTarget kcal.',
-                  style: AppTextStyles.label.copyWith(color: AppColors.cream, fontSize: 13),
+                  style: AppTextStyles.label.copyWith(
+                    color: AppColors.cream, fontSize: 13),
                 ),
               ),
             );
@@ -340,7 +357,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: AppColors.error.withOpacity(0.8), size: 24),
             ),
             const SizedBox(height: 16),
-            Text('Are you sure?', style: AppTextStyles.titleLarge.copyWith(fontSize: 28)),
+            Text('Are you sure?',
+              style: AppTextStyles.titleLarge.copyWith(fontSize: 28)),
             const SizedBox(height: 8),
             Text(
               'This will permanently erase all your logged meals, weight history, and goals. This cannot be undone.',
@@ -359,7 +377,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: AppColors.error.withOpacity(0.8),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Text('Yes, erase everything', textAlign: TextAlign.center,
+                child: Text('Yes, erase everything',
+                  textAlign: TextAlign.center,
                   style: AppTextStyles.button.copyWith(color: AppColors.cream)),
               ),
             ),
@@ -423,14 +442,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.blush.withOpacity(0.3)),
+                          border: Border.all(
+                            color: AppColors.blush.withOpacity(0.3)),
                         ),
                         child: const Icon(Icons.arrow_back_ios_new,
                           color: AppColors.cream, size: 16),
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Text('Profile', style: AppTextStyles.titleLarge.copyWith(fontSize: 28)),
+                    Text('Profile',
+                      style: AppTextStyles.titleLarge.copyWith(fontSize: 28)),
                   ],
                 ),
               ),
@@ -451,7 +472,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 shape: BoxShape.circle,
                                 color: Colors.white.withOpacity(0.1),
                                 border: Border.all(
-                                  color: AppColors.blush.withOpacity(0.4), width: 1.5,
+                                  color: AppColors.blush.withOpacity(0.4),
+                                  width: 1.5,
                                 ),
                               ),
                               child: Center(
@@ -460,18 +482,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ? state.userName[0].toUpperCase()
                                       : 'E',
                                   style: AppTextStyles.titleLarge.copyWith(
-                                    fontSize: 32, fontFamily: 'CormorantGaramond',
+                                    fontSize: 32,
+                                    fontFamily: 'CormorantGaramond',
                                   ),
                                 ),
                               ),
                             ),
                             const SizedBox(height: 10),
                             Text(state.userName,
-                              style: AppTextStyles.titleLarge.copyWith(fontSize: 22)),
+                              style: AppTextStyles.titleLarge.copyWith(
+                                fontSize: 22)),
                             const SizedBox(height: 4),
                             Text(
                               FirebaseAuth.instance.currentUser?.email ?? '',
-                              style: AppTextStyles.caption.copyWith(fontSize: 11),
+                              style: AppTextStyles.caption.copyWith(
+                                fontSize: 11),
                             ),
                           ],
                         ),
@@ -480,13 +505,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       // Editable fields
                       Text('YOUR DETAILS',
-                        style: AppTextStyles.caption.copyWith(letterSpacing: 0.14)),
+                        style: AppTextStyles.caption.copyWith(
+                          letterSpacing: 0.14)),
                       const SizedBox(height: 10),
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white.withOpacity(0.1)),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.1)),
                         ),
                         child: Column(
                           children: [
@@ -509,7 +536,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       color: AppColors.blush.withOpacity(0.4),
                                     ),
                                   ),
-                                  onChanged: (_) => setState(() => _edited = true),
+                                  onChanged: (_) =>
+                                      setState(() => _edited = true),
                                 ),
                               ),
                             ),
@@ -524,7 +552,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     child: TextField(
                                       controller: _targetController,
                                       keyboardType: TextInputType.number,
-                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
                                       style: AppTextStyles.label.copyWith(
                                         color: AppColors.cream, fontSize: 14,
                                       ),
@@ -534,12 +564,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         isDense: true,
                                         contentPadding: EdgeInsets.zero,
                                       ),
-                                      onChanged: (_) => setState(() => _edited = true),
+                                      onChanged: (_) =>
+                                          setState(() => _edited = true),
                                     ),
                                   ),
                                   const SizedBox(width: 4),
                                   Text('kcal',
-                                    style: AppTextStyles.caption.copyWith(fontSize: 11)),
+                                    style: AppTextStyles.caption.copyWith(
+                                      fontSize: 11)),
                                 ],
                               ),
                             ),
@@ -578,10 +610,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     onTap: _saveChanges,
                                     child: Container(
                                       width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(vertical: 15),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 15),
                                       decoration: BoxDecoration(
                                         color: AppColors.cream,
-                                        borderRadius: BorderRadius.circular(14),
+                                        borderRadius:
+                                            BorderRadius.circular(14),
                                       ),
                                       child: Text('Save changes',
                                         textAlign: TextAlign.center,
@@ -594,8 +628,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // New goal
-                      Text('GOAL', style: AppTextStyles.caption.copyWith(letterSpacing: 0.14)),
+                      // Goal section
+                      Text('GOAL',
+                        style: AppTextStyles.caption.copyWith(
+                          letterSpacing: 0.14)),
                       const SizedBox(height: 10),
                       GestureDetector(
                         onTap: _openNewGoalOptions,
@@ -605,7 +641,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white.withOpacity(0.1)),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.1)),
                           ),
                           child: Row(
                             children: [
@@ -623,13 +660,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Start a new goal', style: AppTextStyles.label.copyWith(
-                                      color: AppColors.cream, fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    )),
+                                    Text('Start a new goal',
+                                      style: AppTextStyles.label.copyWith(
+                                        color: AppColors.cream, fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      )),
                                     const SizedBox(height: 3),
-                                    Text('Update your target or start completely fresh.',
-                                      style: AppTextStyles.caption.copyWith(fontSize: 10)),
+                                    Text(
+                                      'Update your target or start completely fresh.',
+                                      style: AppTextStyles.caption.copyWith(
+                                        fontSize: 10)),
                                   ],
                                 ),
                               ),
@@ -643,8 +683,107 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       // Account section
                       Text('ACCOUNT',
-                        style: AppTextStyles.caption.copyWith(letterSpacing: 0.14)),
+                        style: AppTextStyles.caption.copyWith(
+                          letterSpacing: 0.14)),
                       const SizedBox(height: 10),
+
+                      // Upgrade to premium (only if not premium)
+                      if (!state.isPremium) ...[
+                        GestureDetector(
+                          onTap: _openPaywall,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppColors.blush.withOpacity(0.2)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40, height: 40,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.blush.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(Icons.auto_awesome,
+                                    color: AppColors.blush, size: 18),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Upgrade to premium',
+                                        style: AppTextStyles.label.copyWith(
+                                          color: AppColors.cream, fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                        )),
+                                      const SizedBox(height: 3),
+                                      Text('Unlock AI scanning & more',
+                                        style: AppTextStyles.caption.copyWith(
+                                          fontSize: 10)),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(Icons.arrow_forward_ios,
+                                  color: AppColors.blush, size: 13),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+
+                      // Premium badge (if premium)
+                      if (state.isPremium) ...[
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.06),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: AppColors.blush.withOpacity(0.15)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40, height: 40,
+                                decoration: BoxDecoration(
+                                  color: AppColors.blush.withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(Icons.auto_awesome,
+                                  color: AppColors.blush, size: 18),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('elaarra premium',
+                                      style: AppTextStyles.label.copyWith(
+                                        color: AppColors.cream, fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                      )),
+                                    const SizedBox(height: 3),
+                                    Text('Active — manage via the App Store',
+                                      style: AppTextStyles.caption.copyWith(
+                                        fontSize: 10)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+
+                      // Sign out
                       GestureDetector(
                         onTap: _signOut,
                         child: Container(
@@ -653,7 +792,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.06),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white.withOpacity(0.08)),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.08)),
                           ),
                           child: Row(
                             children: [
@@ -664,13 +804,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(Icons.logout,
-                                  color: AppColors.error.withOpacity(0.8), size: 18),
+                                  color: AppColors.error.withOpacity(0.8),
+                                  size: 18),
                               ),
                               const SizedBox(width: 14),
-                              Text('Sign out', style: AppTextStyles.label.copyWith(
-                                color: AppColors.cream, fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                              )),
+                              Text('Sign out',
+                                style: AppTextStyles.label.copyWith(
+                                  color: AppColors.cream, fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                )),
                             ],
                           ),
                         ),
@@ -723,7 +865,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: AppColors.cream, fontSize: 13,
                 )),
                 const SizedBox(width: 6),
-                const Icon(Icons.expand_more, color: AppColors.blush, size: 16),
+                const Icon(Icons.expand_more,
+                  color: AppColors.blush, size: 16),
               ],
             ),
           ),
@@ -762,7 +905,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Text(title, style: AppTextStyles.titleLarge.copyWith(fontSize: 24)),
+            Text(title,
+              style: AppTextStyles.titleLarge.copyWith(fontSize: 24)),
             const SizedBox(height: 16),
             ...options.map((o) {
               final selected = o == current;
@@ -774,9 +918,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Container(
                   width: double.infinity,
                   margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    color: selected ? AppColors.cream : Colors.white.withOpacity(0.08),
+                    color: selected
+                        ? AppColors.cream
+                        : Colors.white.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: selected
@@ -788,12 +935,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(o, style: AppTextStyles.label.copyWith(
-                        color: selected ? AppColors.darkBrown : AppColors.cream,
+                        color: selected
+                            ? AppColors.darkBrown
+                            : AppColors.cream,
                         fontSize: 13,
-                        fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
+                        fontWeight: selected
+                            ? FontWeight.w500
+                            : FontWeight.w400,
                       )),
                       if (selected)
-                        const Icon(Icons.check, color: AppColors.darkBrown, size: 16),
+                        const Icon(Icons.check,
+                          color: AppColors.darkBrown, size: 16),
                     ],
                   ),
                 ),
@@ -880,12 +1032,14 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         decoration: const BoxDecoration(
           gradient: AppGradient.background,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border(top: BorderSide(color: AppColors.blush, width: 0.3)),
+          border: Border(
+            top: BorderSide(color: AppColors.blush, width: 0.3)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 36),
         child: SingleChildScrollView(
@@ -906,7 +1060,8 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
               Text('Recalculate\nyour target',
                 style: AppTextStyles.titleLarge.copyWith(fontSize: 30)),
               const SizedBox(height: 4),
-              Text('Update your details and we\'ll work out a new daily goal.',
+              Text(
+                'Update your details and we\'ll work out a new daily goal.',
                 style: AppTextStyles.body),
               const SizedBox(height: 20),
               Row(
@@ -919,18 +1074,25 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
                         margin: EdgeInsets.only(right: g == 'female' ? 6 : 0),
                         padding: const EdgeInsets.symmetric(vertical: 11),
                         decoration: BoxDecoration(
-                          color: sel ? AppColors.cream : Colors.white.withOpacity(0.1),
+                          color: sel
+                              ? AppColors.cream
+                              : Colors.white.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: sel ? AppColors.cream : AppColors.blush.withOpacity(0.3),
+                            color: sel
+                                ? AppColors.cream
+                                : AppColors.blush.withOpacity(0.3),
                           ),
                         ),
                         child: Text(
                           g == 'female' ? 'Female' : 'Male',
                           textAlign: TextAlign.center,
                           style: AppTextStyles.label.copyWith(
-                            color: sel ? AppColors.darkBrown : AppColors.blush,
-                            fontSize: 12, fontWeight: FontWeight.w500,
+                            color: sel
+                                ? AppColors.darkBrown
+                                : AppColors.blush,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -956,9 +1118,9 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
                 ),
               ),
               const SizedBox(height: 12),
-              Text('ACTIVITY LEVEL', style: AppTextStyles.caption.copyWith(
-                letterSpacing: 0.14, color: AppColors.blush,
-              )),
+              Text('ACTIVITY LEVEL',
+                style: AppTextStyles.caption.copyWith(
+                  letterSpacing: 0.14, color: AppColors.blush)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8, runSpacing: 8,
@@ -968,12 +1130,17 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
                     onTap: () => setState(() => _activityLevel = a),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: sel ? AppColors.cream : Colors.white.withOpacity(0.1),
+                        color: sel
+                            ? AppColors.cream
+                            : Colors.white.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: sel ? AppColors.cream : AppColors.blush.withOpacity(0.3),
+                          color: sel
+                              ? AppColors.cream
+                              : AppColors.blush.withOpacity(0.3),
                         ),
                       ),
                       child: Text(a, style: AppTextStyles.label.copyWith(
@@ -986,9 +1153,9 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
                 }).toList(),
               ),
               const SizedBox(height: 12),
-              Text('GOAL TYPE', style: AppTextStyles.caption.copyWith(
-                letterSpacing: 0.14, color: AppColors.blush,
-              )),
+              Text('GOAL TYPE',
+                style: AppTextStyles.caption.copyWith(
+                  letterSpacing: 0.14, color: AppColors.blush)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8, runSpacing: 8,
@@ -998,12 +1165,17 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
                     onTap: () => setState(() => _goalType = g),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: sel ? AppColors.cream : Colors.white.withOpacity(0.1),
+                        color: sel
+                            ? AppColors.cream
+                            : Colors.white.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: sel ? AppColors.cream : AppColors.blush.withOpacity(0.3),
+                          color: sel
+                              ? AppColors.cream
+                              : AppColors.blush.withOpacity(0.3),
                         ),
                       ),
                       child: Text(g, style: AppTextStyles.label.copyWith(
@@ -1022,16 +1194,18 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.blush.withOpacity(0.2)),
+                  border: Border.all(
+                    color: AppColors.blush.withOpacity(0.2)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('New daily target', style: AppTextStyles.label.copyWith(
-                      color: AppColors.blush,
-                    )),
+                    Text('New daily target',
+                      style: AppTextStyles.label.copyWith(
+                        color: AppColors.blush)),
                     Text('$_calculatedTarget kcal',
-                      style: AppTextStyles.titleLarge.copyWith(fontSize: 22)),
+                      style: AppTextStyles.titleLarge.copyWith(
+                        fontSize: 22)),
                   ],
                 ),
               ),
@@ -1048,7 +1222,8 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
                     color: AppColors.cream,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Text('Update target', textAlign: TextAlign.center,
+                  child: Text('Update target',
+                    textAlign: TextAlign.center,
                     style: AppTextStyles.button),
                 ),
               ),
@@ -1059,7 +1234,11 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
     );
   }
 
-  Widget _buildInputRow(String label, TextEditingController controller, String unit) {
+  Widget _buildInputRow(
+    String label,
+    TextEditingController controller,
+    String unit,
+  ) {
     return Row(
       children: [
         Expanded(
@@ -1077,7 +1256,8 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
                   color: AppColors.darkBrown, fontSize: 24,
                 ),
                 decoration: const InputDecoration(
-                  isDense: true, contentPadding: EdgeInsets.zero,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
                   border: InputBorder.none,
                 ),
                 onChanged: (_) => setState(() {}),
@@ -1085,7 +1265,8 @@ class _RecalculateSheetState extends State<_RecalculateSheet> {
             ],
           ),
         ),
-        Text(unit, style: AppTextStyles.label.copyWith(color: AppColors.sienna)),
+        Text(unit, style: AppTextStyles.label.copyWith(
+          color: AppColors.sienna)),
       ],
     );
   }
