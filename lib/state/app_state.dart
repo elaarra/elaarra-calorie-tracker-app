@@ -7,7 +7,7 @@ import '../services/firestore_service.dart';
 class AppState extends ChangeNotifier {
   String userName = 'there';
   int dailyTarget = 1650;
-  bool isPremium  = false;
+  bool isPremium  = true;
   bool _isLoading = true;
 
   bool get isLoading => _isLoading;
