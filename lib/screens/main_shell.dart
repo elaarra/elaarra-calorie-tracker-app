@@ -25,7 +25,13 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Color(0xFF3D1A10),
+      systemNavigationBarDividerColor: Color(0xFF3D1A10),
+      systemNavigationBarIconBrightness: Brightness.light,
+    ));
     return Scaffold(
       backgroundColor: AppColors.darkBrown,
       body: IndexedStack(
