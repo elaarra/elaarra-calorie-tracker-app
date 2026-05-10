@@ -24,11 +24,26 @@ class _MainShellState extends State<MainShell> {
   ];
 
   @override
-  Widget build(BuildContext context) {
-    // Makes status bar text light so it's visible on dark bg
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+  void initState() {
+    super.initState();
+    // Make system navigation bar transparent
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+    );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
@@ -39,11 +54,18 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildNavBar() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: AppGradient.background,
-        border: Border(
+        border: const Border(
           top: BorderSide(color: AppColors.blush, width: 0.3),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.darkBrown.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Padding(
@@ -62,7 +84,12 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
+  Widget _buildNavItem(
+    int index,
+    IconData icon,
+    IconData activeIcon,
+    String label,
+  ) {
     final selected = _currentIndex == index;
     return GestureDetector(
       onTap: () => setState(() => _currentIndex = index),
@@ -71,7 +98,9 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? AppColors.cream.withOpacity(0.12) : Colors.transparent,
+          color: selected
+              ? AppColors.cream.withOpacity(0.12)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -79,14 +108,18 @@ class _MainShellState extends State<MainShell> {
           children: [
             Icon(
               selected ? activeIcon : icon,
-              color: selected ? AppColors.cream : AppColors.blush.withOpacity(0.5),
+              color: selected
+                  ? AppColors.cream
+                  : AppColors.blush.withOpacity(0.5),
               size: 22,
             ),
             const SizedBox(height: 3),
             Text(
               label,
               style: AppTextStyles.caption.copyWith(
-                color: selected ? AppColors.cream : AppColors.blush.withOpacity(0.5),
+                color: selected
+                    ? AppColors.cream
+                    : AppColors.blush.withOpacity(0.5),
                 fontSize: 10,
                 letterSpacing: 0.04,
               ),
@@ -97,7 +130,6 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  // Analyse tab is a special raised button to signal the AI feature
   Widget _buildAnalyseItem() {
     final selected = _currentIndex == 2;
     return GestureDetector(
@@ -106,7 +138,9 @@ class _MainShellState extends State<MainShell> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? AppColors.cream : AppColors.cream.withOpacity(0.15),
+          color: selected
+              ? AppColors.cream
+              : AppColors.cream.withOpacity(0.15),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
