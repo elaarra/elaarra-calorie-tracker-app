@@ -128,7 +128,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset('assets/images/logo_cream_darkBG.png', height: 36),
+          Image.asset('assets/images/logo_cream_alpha.png', height: 36),
           const SizedBox(height: 16),
           Row(
             children: List.generate(_totalSteps, (i) {
