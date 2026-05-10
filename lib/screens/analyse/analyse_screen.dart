@@ -166,7 +166,9 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
     final state = context.watch<AppState>();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
 
+    final screenHeight = MediaQuery.of(context).size.height;
     return Container(
+      height: screenHeight,
       decoration: const BoxDecoration(gradient: AppGradient.background),
       child: SafeArea(bottom: false,
         child: !state.isPremium
