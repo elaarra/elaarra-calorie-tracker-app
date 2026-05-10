@@ -168,7 +168,7 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
 
     return Container(
       decoration: const BoxDecoration(gradient: AppGradient.background),
-      child: SafeArea(
+      child: SafeArea(bottom: false,
         child: !state.isPremium
             ? _buildLockedScreen()
             : AnimatedSwitcher(
