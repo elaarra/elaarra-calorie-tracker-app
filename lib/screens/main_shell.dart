@@ -60,18 +60,16 @@ class _MainShellState extends State<MainShell> {
         top: false,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
-                _buildNavItem(1, Icons.edit_outlined, Icons.edit_rounded, 'Log'),
-                _buildAnalyseItem(),
-                _buildNavItem(3, Icons.trending_up_outlined, Icons.trending_up, 'Results'),
-              ],
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
+              _buildNavItem(1, Icons.edit_outlined, Icons.edit_rounded, 'Log'),
+              _buildAnalyseItem(),
+              _buildNavItem(3, Icons.trending_up_outlined, Icons.trending_up, 'Results'),
+            ],
           ),
-
-        ],
+        ),
       ),
     );
   }
