@@ -85,14 +85,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: sel ? AppColors.cream : AppColors.blush.withOpacity(0.3),
                             ),
                           ),
-                          child: Text(
-                            t,
-                            style: AppTextStyles.label.copyWith(
-                              color: sel ? AppColors.darkBrown : AppColors.blush,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          child: Text(t, style: AppTextStyles.label.copyWith(
+                            color: sel ? AppColors.darkBrown : AppColors.blush,
+                            fontSize: 12, fontWeight: FontWeight.w500,
+                          )),
                         ),
                       );
                     }).toList(),
@@ -140,11 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (kcal > 0) {
                       state.addEntry(
                         DateTime.now(),
-                        LogEntry(
-                          calories: kcal,
-                          label: selectedType,
-                          loggedAt: DateTime.now(),
-                        ),
+                        LogEntry(calories: kcal, label: selectedType, loggedAt: DateTime.now()),
                       );
                     }
                     Navigator.pop(ctx);
@@ -156,11 +148,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: AppColors.cream,
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Text(
-                      'Add to today',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.button.copyWith(fontSize: 15),
-                    ),
+                    child: Text('Add to today', textAlign: TextAlign.center,
+                      style: AppTextStyles.button.copyWith(fontSize: 15)),
                   ),
                 ),
               ],
@@ -184,22 +173,32 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       decoration: const BoxDecoration(gradient: AppGradient.background),
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(state),
-              const SizedBox(height: 20),
-              _buildProgressRing(state),
-              const SizedBox(height: 10),
-              _buildEncouragement(state),
-              const SizedBox(height: 10),
-              _buildMacros(),
-              const SizedBox(height: 16),
-              _buildMealList(state),
-            ],
-          ),
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  _buildHeader(state),
+                  const SizedBox(height: 20),
+                  _buildProgressRing(state),
+                  const SizedBox(height: 10),
+                  _buildEncouragement(state),
+                  const SizedBox(height: 10),
+                  _buildMacros(),
+                  const SizedBox(height: 16),
+                  _buildMealList(state),
+                ]),
+              ),
+            ),
+            // Fill remaining space with gradient
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Container(
+                decoration: const BoxDecoration(gradient: AppGradient.background),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -231,14 +230,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Center(
               child: Text(
-                state.userName.isNotEmpty
-                    ? state.userName[0].toUpperCase()
-                    : 'E',
+                state.userName.isNotEmpty ? state.userName[0].toUpperCase() : 'E',
                 style: AppTextStyles.label.copyWith(
-                  color: AppColors.blush,
-                  fontSize: 16,
-                  fontFamily: 'CormorantGaramond',
-                  fontWeight: FontWeight.w700,
+                  color: AppColors.blush, fontSize: 16,
+                  fontFamily: 'CormorantGaramond', fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -275,10 +270,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      state.todayConsumed.toString(),
-                      style: AppTextStyles.titleLarge.copyWith(fontSize: 30),
-                    ),
+                    Text(state.todayConsumed.toString(),
+                      style: AppTextStyles.titleLarge.copyWith(fontSize: 30)),
                     Text('of ${state.dailyTarget}', style: AppTextStyles.caption),
                   ],
                 ),
@@ -327,9 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Text(
         state.encouragement,
         style: AppTextStyles.body.copyWith(
-          fontSize: 14,
-          fontStyle: FontStyle.italic,
-          color: AppColors.cream,
+          fontSize: 14, fontStyle: FontStyle.italic, color: AppColors.cream,
         ),
         textAlign: TextAlign.center,
       ),
@@ -367,8 +358,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
-                value: prog,
-                minHeight: 3,
+                value: prog, minHeight: 3,
                 backgroundColor: Colors.white.withOpacity(0.15),
                 valueColor: const AlwaysStoppedAnimation<Color>(AppColors.cream),
               ),
@@ -423,8 +413,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               : Column(
                   children: meals.asMap().entries.map((entry) {
-                    final i      = entry.key;
-                    final m      = entry.value;
+                    final i = entry.key;
+                    final m = entry.value;
                     final isLast = i == meals.length - 1;
                     return Column(
                       children: [
@@ -436,36 +426,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      m.name ?? 'Entry',
+                                    Text(m.name ?? 'Entry',
                                       style: AppTextStyles.label.copyWith(
-                                        color: AppColors.cream,
-                                        fontSize: 13,
+                                        color: AppColors.cream, fontSize: 13,
                                         fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
+                                      )),
                                     const SizedBox(height: 2),
-                                    Text(
-                                      '${m.label ?? 'No label'} · ${_formatTime(m.loggedAt)}',
-                                      style: AppTextStyles.caption.copyWith(fontSize: 10),
-                                    ),
+                                    Text('${m.label ?? 'No label'} · ${_formatTime(m.loggedAt)}',
+                                      style: AppTextStyles.caption.copyWith(fontSize: 10)),
                                   ],
                                 ),
                               ),
-                              Text(
-                                '${m.calories}',
-                                style: AppTextStyles.titleLarge.copyWith(fontSize: 18),
-                              ),
+                              Text('${m.calories}',
+                                style: AppTextStyles.titleLarge.copyWith(fontSize: 18)),
                             ],
                           ),
                         ),
                         if (!isLast)
-                          Divider(
-                            height: 0.5,
-                            color: AppColors.blush.withOpacity(0.2),
-                            indent: 16,
-                            endIndent: 16,
-                          ),
+                          Divider(height: 0.5, color: AppColors.blush.withOpacity(0.2),
+                            indent: 16, endIndent: 16),
                       ],
                     );
                   }).toList(),
@@ -484,9 +463,9 @@ class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final cx      = size.width / 2;
-    final cy      = size.height / 2;
-    final radius  = (size.width / 2) - 10;
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final radius = (size.width / 2) - 10;
     const strokeW = 10.0;
     const startAngle = -1.5708;
 
