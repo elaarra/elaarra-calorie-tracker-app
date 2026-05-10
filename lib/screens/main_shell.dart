@@ -51,7 +51,9 @@ class _MainShellState extends State<MainShell> {
   Widget _buildNavBar() {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.darkBrown,
+        gradient: LinearGradient(
+          colors: [AppColors.darkBrown, AppColors.darkBrown],
+        ),
         border: Border(
           top: BorderSide(color: AppColors.blush, width: 0.3),
         ),
