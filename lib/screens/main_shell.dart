@@ -24,14 +24,19 @@ class _MainShellState extends State<MainShell> {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Color(0xFF3D1A10),
-      systemNavigationBarDividerColor: Color(0xFF3D1A10),
+      systemNavigationBarColor: AppColors.darkBrown,
+      systemNavigationBarDividerColor: AppColors.darkBrown,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.darkBrown,
       body: IndexedStack(
@@ -44,26 +49,31 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildNavBar() {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.darkBrown,
-        border: Border(
-          top: BorderSide(color: AppColors.blush, width: 0.3),
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
-              _buildNavItem(1, Icons.edit_outlined, Icons.edit_rounded, 'Log'),
-              _buildAnalyseItem(),
-              _buildNavItem(3, Icons.trending_up_outlined, Icons.trending_up, 'Results'),
-            ],
+      color: AppColors.darkBrown,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Top border line
+          Container(
+            height: 0.3,
+            color: AppColors.blush,
           ),
-        ),
+          // Nav items above safe area
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
+                _buildNavItem(1, Icons.edit_outlined, Icons.edit_rounded, 'Log'),
+                _buildAnalyseItem(),
+                _buildNavItem(3, Icons.trending_up_outlined, Icons.trending_up, 'Results'),
+              ],
+            ),
+          ),
+          // Fill the system gesture area with dark brown
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
+        ],
       ),
     );
   }
