@@ -104,7 +104,7 @@ class _AppLoaderState extends State<_AppLoader> {
     if (!_ready) {
       return Container(
         decoration: const BoxDecoration(gradient: AppGradient.background),
-        child: const Center(
+        child: Center(
           child: Image.asset('assets/images/logo_cream_darkBG.png', height: 36),
         ),
       );
