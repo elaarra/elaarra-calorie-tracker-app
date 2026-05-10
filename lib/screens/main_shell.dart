@@ -45,6 +45,7 @@ class _MainShellState extends State<MainShell> {
         ),
       ),
       child: SafeArea(
+        top: false,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           child: Row(
