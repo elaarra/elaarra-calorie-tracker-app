@@ -39,6 +39,7 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.darkBrown,
+      extendBody: true,
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
@@ -71,8 +72,7 @@ class _MainShellState extends State<MainShell> {
               ],
             ),
           ),
-          // Fill the system gesture area with dark brown
-          SizedBox(height: MediaQuery.of(context).padding.bottom),
+
         ],
       ),
     );
