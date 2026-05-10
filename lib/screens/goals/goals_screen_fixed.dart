@@ -125,7 +125,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return Container(
       decoration: const BoxDecoration(gradient: AppGradient.background),
-      child: SafeArea(
+      child: SafeArea(bottom: false,
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           child: Column(
