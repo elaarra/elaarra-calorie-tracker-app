@@ -100,6 +100,7 @@ class _LogScreenState extends State<LogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     final state    = context.watch<AppState>();
     final entries  = state.entriesFor(_selectedDate);
     final consumed = entries.fold(0, (sum, e) => sum + e.calories);
@@ -110,6 +111,7 @@ class _LogScreenState extends State<LogScreen> {
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return Container(
+      height: screenHeight,
       decoration: const BoxDecoration(gradient: AppGradient.background),
       child: SafeArea(bottom: false,
         child: SingleChildScrollView(
@@ -122,6 +124,7 @@ class _LogScreenState extends State<LogScreen> {
               _buildSummary(consumed, target, remaining, isOver, progress),
               const SizedBox(height: 16),
               _buildEntryList(entries),
+              SizedBox(height: screenHeight),
             ],
           ),
         ),
