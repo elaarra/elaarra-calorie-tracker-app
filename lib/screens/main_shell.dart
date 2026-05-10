@@ -26,7 +26,6 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
-    // Make system navigation bar transparent
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -41,12 +40,24 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate nav bar height so screens can pad their content correctly
+    final navBarHeight = 70.0 + MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
+      backgroundColor: AppColors.darkBrown,
+      body: MediaQuery(
+        // Tell screens how much bottom space the nav bar takes
+        data: MediaQuery.of(context).copyWith(
+          padding: MediaQuery.of(context).padding.copyWith(
+            bottom: navBarHeight,
+          ),
+        ),
+        child: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
+        ),
       ),
       bottomNavigationBar: _buildNavBar(),
     );
