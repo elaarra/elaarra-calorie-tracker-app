@@ -149,7 +149,7 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset('assets/images/logo_cream_darkBG.png', height: 36),
+                Image.asset('assets/images/logo_cream_alpha.png', height: 36),
                 const SizedBox(height: 32),
                 Text(
                   'Welcome\nback',
