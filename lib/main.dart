@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'state/app_state.dart';
 import 'services/database_service.dart';
@@ -12,6 +13,21 @@ import 'screens/main_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Disable edge-to-edge enforcement
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
+  );
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Color(0xFF3D1A10),
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
+
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp();
   runApp(
@@ -89,7 +105,7 @@ class _AppLoaderState extends State<_AppLoader> {
       return Container(
         decoration: const BoxDecoration(gradient: AppGradient.background),
         child: const Center(
-          child: Text('elaarra', style: AppTextStyles.brandMark),
+          child: Image.asset('assets/images/logo_cream_darkBG.png', height: 36),
         ),
       );
     }

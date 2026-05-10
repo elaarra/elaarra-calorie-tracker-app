@@ -128,7 +128,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('elaarra', style: AppTextStyles.brandMark),
+          Image.asset('assets/images/logo_cream_darkBG.png', height: 36),
           const SizedBox(height: 16),
           Row(
             children: List.generate(_totalSteps, (i) {
