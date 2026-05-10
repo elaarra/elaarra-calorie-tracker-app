@@ -24,40 +24,13 @@ class _MainShellState extends State<MainShell> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarDividerColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // Calculate nav bar height so screens can pad their content correctly
-    final navBarHeight = 70.0 + MediaQuery.of(context).padding.bottom;
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
 
     return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      backgroundColor: AppColors.darkBrown,
-      body: MediaQuery(
-        // Tell screens how much bottom space the nav bar takes
-        data: MediaQuery.of(context).copyWith(
-          padding: MediaQuery.of(context).padding.copyWith(
-            bottom: navBarHeight,
-          ),
-        ),
-        child: IndexedStack(
-          index: _currentIndex,
-          children: _screens,
-        ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
       ),
       bottomNavigationBar: _buildNavBar(),
     );
@@ -65,18 +38,11 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildNavBar() {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: AppGradient.background,
-        border: const Border(
+        border: Border(
           top: BorderSide(color: AppColors.blush, width: 0.3),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.darkBrown.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, -2),
-          ),
-        ],
       ),
       child: SafeArea(
         child: Padding(
