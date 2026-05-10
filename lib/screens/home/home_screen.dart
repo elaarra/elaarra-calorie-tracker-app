@@ -170,35 +170,32 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+
+    // Fill the full screen height with gradient
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Container(
+      height: screenHeight,
       decoration: const BoxDecoration(gradient: AppGradient.background),
-      child: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _buildHeader(state),
-                  const SizedBox(height: 20),
-                  _buildProgressRing(state),
-                  const SizedBox(height: 10),
-                  _buildEncouragement(state),
-                  const SizedBox(height: 10),
-                  _buildMacros(),
-                  const SizedBox(height: 16),
-                  _buildMealList(state),
-                ]),
-              ),
-            ),
-            // Fill remaining space with gradient
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Container(
-                decoration: const BoxDecoration(gradient: AppGradient.background),
-              ),
-            ),
-          ],
+      child: SafeArea(bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(state),
+              const SizedBox(height: 20),
+              _buildProgressRing(state),
+              const SizedBox(height: 10),
+              _buildEncouragement(state),
+              const SizedBox(height: 10),
+              _buildMacros(),
+              const SizedBox(height: 16),
+              _buildMealList(state),
+              // Push content to fill screen so gradient always covers background
+              SizedBox(height: screenHeight),
+            ],
+          ),
         ),
       ),
     );
@@ -253,7 +250,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Column(
         children: [
-          Text('TODAY\'S PROGRESS', style: AppTextStyles.caption.copyWith(letterSpacing: 0.14)),
+          Text('TODAY\'S PROGRESS',
+            style: AppTextStyles.caption.copyWith(letterSpacing: 0.14)),
           const SizedBox(height: 16),
           SizedBox(
             width: 140, height: 140,
@@ -376,7 +374,8 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('TODAY\'S MEALS', style: AppTextStyles.caption.copyWith(letterSpacing: 0.14)),
+            Text('TODAY\'S MEALS',
+              style: AppTextStyles.caption.copyWith(letterSpacing: 0.14)),
             GestureDetector(
               onTap: _openQuickAdd,
               child: Container(
@@ -419,7 +418,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     return Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                           child: Row(
                             children: [
                               Expanded(
@@ -432,18 +432,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                         fontWeight: FontWeight.w400,
                                       )),
                                     const SizedBox(height: 2),
-                                    Text('${m.label ?? 'No label'} · ${_formatTime(m.loggedAt)}',
-                                      style: AppTextStyles.caption.copyWith(fontSize: 10)),
+                                    Text(
+                                      '${m.label ?? 'No label'} · ${_formatTime(m.loggedAt)}',
+                                      style: AppTextStyles.caption.copyWith(
+                                        fontSize: 10)),
                                   ],
                                 ),
                               ),
                               Text('${m.calories}',
-                                style: AppTextStyles.titleLarge.copyWith(fontSize: 18)),
+                                style: AppTextStyles.titleLarge.copyWith(
+                                  fontSize: 18)),
                             ],
                           ),
                         ),
                         if (!isLast)
-                          Divider(height: 0.5, color: AppColors.blush.withOpacity(0.2),
+                          Divider(height: 0.5,
+                            color: AppColors.blush.withOpacity(0.2),
                             indent: 16, endIndent: 16),
                       ],
                     );
