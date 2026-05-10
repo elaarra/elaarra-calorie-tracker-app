@@ -50,18 +50,16 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildNavBar() {
     return Container(
-      color: AppColors.darkBrown,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Top border line
-          Container(
-            height: 0.3,
-            color: AppColors.blush,
-          ),
-          // Nav items above safe area
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      decoration: const BoxDecoration(
+        color: AppColors.darkBrown,
+        border: Border(
+          top: BorderSide(color: AppColors.blush, width: 0.3),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
