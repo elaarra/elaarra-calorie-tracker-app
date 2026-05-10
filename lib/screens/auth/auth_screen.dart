@@ -149,7 +149,7 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('elaarra', style: AppTextStyles.brandMark),
+                Image.asset('assets/images/logo_cream_darkBG.png', height: 36),
                 const SizedBox(height: 32),
                 Text(
                   'Welcome\nback',
