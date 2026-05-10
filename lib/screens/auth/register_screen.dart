@@ -119,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                Text('elaarra', style: AppTextStyles.brandMark),
+                Image.asset('assets/images/logo_cream_darkBG.png', height: 36),
                 const SizedBox(height: 16),
                 Text(
                   'Create your\naccount',
