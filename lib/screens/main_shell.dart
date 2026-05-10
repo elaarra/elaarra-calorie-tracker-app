@@ -26,7 +26,6 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
-
     return Scaffold(
       backgroundColor: AppColors.darkBrown,
       body: IndexedStack(
@@ -40,7 +39,7 @@ class _MainShellState extends State<MainShell> {
   Widget _buildNavBar() {
     return Container(
       decoration: const BoxDecoration(
-        gradient: AppGradient.background,
+        color: AppColors.darkBrown,
         border: Border(
           top: BorderSide(color: AppColors.blush, width: 0.3),
         ),
