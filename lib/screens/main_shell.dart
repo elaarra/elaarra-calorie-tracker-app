@@ -24,22 +24,10 @@ class _MainShellState extends State<MainShell> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: AppColors.darkBrown,
-      systemNavigationBarDividerColor: AppColors.darkBrown,
-      systemNavigationBarIconBrightness: Brightness.light,
-    ));
-  }
-
-  @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return Scaffold(
       backgroundColor: AppColors.darkBrown,
-      extendBody: true,
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
@@ -51,9 +39,7 @@ class _MainShellState extends State<MainShell> {
   Widget _buildNavBar() {
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.darkBrown, AppColors.darkBrown],
-        ),
+        color: AppColors.darkBrown,
         border: Border(
           top: BorderSide(color: AppColors.blush, width: 0.3),
         ),
