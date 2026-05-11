@@ -37,18 +37,17 @@ android {
 
     defaultConfig {
         applicationId = "com.elaarra.calorietracker"
-        minSdk = 21
-        targetSdk = 34
+        minSdk = flutter.minSdkVersion
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
     buildTypes {
         release {
-    signingConfig = signingConfigs.getByName("release")
-    isMinifyEnabled = false
-    isShrinkResources = false
-}
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
         debug {
             signingConfig = signingConfigs.getByName("debug")

@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:807454769221:android:e78e27f3900b90db16632c",
+        "mobilesdk_app_id": "1:807454769221:android:2d2b0ef3f8e63fd816632c",
         "android_client_info": {
-          "package_name": "com.example.elaarra_calorie_tracker"
+          "package_name": "com.elaarra.calorietracker"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "807454769221-4k6k8s1tnmve0pqe974q7l2p8gb59t4b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDQNcrANV-AxESUZt-7VrAfWDFHZ2oSklc"
@@ -20,7 +25,41 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "807454769221-4k6k8s1tnmve0pqe974q7l2p8gb59t4b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807454769221:android:e78e27f3900b90db16632c",
+        "android_client_info": {
+          "package_name": "com.example.elaarra_calorie_tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "807454769221-4k6k8s1tnmve0pqe974q7l2p8gb59t4b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQNcrANV-AxESUZt-7VrAfWDFHZ2oSklc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "807454769221-4k6k8s1tnmve0pqe974q7l2p8gb59t4b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
