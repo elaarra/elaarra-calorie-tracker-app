@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "807454769221",
+    "project_id": "elaarra-51dcf",
+    "storage_bucket": "elaarra-51dcf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807454769221:android:e78e27f3900b90db16632c",
+        "android_client_info": {
+          "package_name": "com.example.elaarra_calorie_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQNcrANV-AxESUZt-7VrAfWDFHZ2oSklc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
