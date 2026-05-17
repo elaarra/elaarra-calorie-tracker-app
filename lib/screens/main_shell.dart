@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/theme.dart';
 import 'home/home_screen.dart';
@@ -39,7 +39,7 @@ class _MainShellState extends State<MainShell> {
   Widget _buildNavBar() {
     return Container(
       decoration: const BoxDecoration(
-        gradient: AppGradient.background,
+        color: AppColors.darkBrown,
         border: Border(
           top: BorderSide(color: AppColors.blush, width: 0.3),
         ),
