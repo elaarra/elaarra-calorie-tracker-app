@@ -21,14 +21,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _ageController    = TextEditingController(text: '28');
   final _nameController   = TextEditingController();
   String _gender          = 'female';
-  String _selectedGoal    = 'Lose weight';
+  String _selectedGoal    = 'Manage weight';
+  String _manageDirection = 'lose'; // 'lose' or 'gain' — only used when goal is Manage weight
   String _activityLevel   = 'Lightly active';
 
   final List<String> _goals = [
-    'Lose weight',
-    'Build muscle',
+    'Manage weight',
     'Maintain weight',
-    'Improve health',
+    'Improve nutrition',
+    'Gain muscle',
   ];
 
   final List<String> _activityLevels = [
@@ -45,12 +46,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     'Very active': 1.725,
   };
 
-  final Map<String, int> _goalAdjustments = {
-    'Lose weight': -500,
-    'Build muscle': 300,
-    'Maintain weight': 0,
-    'Improve health': 0,
-  };
+  int get _goalAdjustment {
+    if (_selectedGoal == 'Manage weight') {
+      return _manageDirection == 'lose' ? -500 : 300;
+    }
+    if (_selectedGoal == 'Gain muscle') return 300;
+    return 0; // Maintain weight, Improve nutrition
+  }
 
   int get _dailyCalories {
     final h = double.tryParse(_heightController.text) ?? 165;
@@ -60,7 +62,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ? 447.593 + (9.247 * w) + (3.098 * h) - (4.330 * a)
         : 88.362 + (13.397 * w) + (4.799 * h) - (5.677 * a);
     final tdee = bmr * (_activityMultipliers[_activityLevel] ?? 1.375);
-    return (tdee + (_goalAdjustments[_selectedGoal] ?? 0)).round();
+    return (tdee + _goalAdjustment).round();
+  }
+
+  int get _tdee {
+    final h = double.tryParse(_heightController.text) ?? 165;
+    final w = double.tryParse(_weightController.text) ?? 62;
+    final a = int.tryParse(_ageController.text) ?? 28;
+    final double bmr = _gender == 'female'
+        ? 447.593 + (9.247 * w) + (3.098 * h) - (4.330 * a)
+        : 88.362 + (13.397 * w) + (4.799 * h) - (5.677 * a);
+    return (bmr * (_activityMultipliers[_activityLevel] ?? 1.375)).round();
   }
 
   int get _protein => ((_dailyCalories * 0.30) / 4).round();
@@ -103,6 +115,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.darkBrown,
       body: Container(
         decoration: const BoxDecoration(gradient: AppGradient.background),
         child: SafeArea(
@@ -201,15 +214,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       color: selected ? AppColors.darkBrown : AppColors.cream,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: selected ? AppColors.darkBrown : AppColors.blush,
+                        color: selected
+                            ? AppColors.darkBrown
+                            : AppColors.blush,
                       ),
                     ),
                     child: Text(
                       g == 'female' ? 'Female' : 'Male',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.label.copyWith(
-                        color: selected ? AppColors.cream : AppColors.midBrown,
-                        fontFamily: 'NeueMontreal',
+                        color: selected
+                            ? AppColors.cream
+                            : AppColors.midBrown,
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
@@ -235,17 +251,122 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       title: "What's your\ngoal?",
       subtitle: "We'll personalise your daily target around this.",
       child: Column(
-        children: _goals.map((g) => _buildChoiceChip(
-          label: g,
-          selected: _selectedGoal == g,
-          onTap: () => setState(() => _selectedGoal = g),
-        )).toList(),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ..._goals.map((g) => _buildChoiceChip(
+            label: g,
+            selected: _selectedGoal == g,
+            onTap: () => setState(() => _selectedGoal = g),
+          )),
+          // Sub-option for Manage weight
+          if (_selectedGoal == 'Manage weight') ...[
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 4),
+              child: Text(
+                'I want to...',
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 10, color: AppColors.midBrown),
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _manageDirection = 'lose'),
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 6),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _manageDirection == 'lose'
+                            ? AppColors.darkBrown
+                            : AppColors.cream,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _manageDirection == 'lose'
+                              ? AppColors.darkBrown
+                              : AppColors.blush,
+                        ),
+                      ),
+                      child: Text(
+                        'Lose weight',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.label.copyWith(
+                          fontSize: 11,
+                          color: _manageDirection == 'lose'
+                              ? AppColors.cream
+                              : AppColors.midBrown,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _manageDirection = 'gain'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _manageDirection == 'gain'
+                            ? AppColors.darkBrown
+                            : AppColors.cream,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _manageDirection == 'gain'
+                              ? AppColors.darkBrown
+                              : AppColors.blush,
+                        ),
+                      ),
+                      child: Text(
+                        'Gain weight',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.label.copyWith(
+                          fontSize: 11,
+                          color: _manageDirection == 'gain'
+                              ? AppColors.cream
+                              : AppColors.midBrown,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 8),
+          // Medical disclaimer
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.blush.withOpacity(0.2)),
+            ),
+            child: Text(
+              'Always consult your doctor before making significant changes to your diet or exercise routine. elaarra is a wellness tool, not a medical service.',
+              style: AppTextStyles.caption.copyWith(
+                fontSize: 10,
+                color: AppColors.blush.withOpacity(0.7),
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // ── Step 4: Results ────────────────────────────────────────
   Widget _buildResultStep() {
+    final deficit = _tdee - _dailyCalories;
+    final deficitLabel = deficit > 0
+        ? '${deficit} kcal below your maintenance'
+        : deficit < 0
+            ? '${deficit.abs()} kcal above your maintenance'
+            : 'At your maintenance level';
+
     return _buildStepWrapper(
       key: const ValueKey('result'),
       title: 'Your daily\ntarget',
@@ -272,6 +393,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   style: AppTextStyles.titleLarge.copyWith(fontSize: 48),
                 ),
                 Text('kcal per day', style: AppTextStyles.caption),
+                const SizedBox(height: 8),
+                Text(
+                  deficitLabel,
+                  style: AppTextStyles.caption.copyWith(
+                    fontSize: 10,
+                    color: AppColors.blush.withOpacity(0.7),
+                  ),
+                ),
               ],
             ),
           ),
@@ -284,6 +413,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               const SizedBox(width: 8),
               _buildMacroCard('Fat', '$_fat g'),
             ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.blush.withOpacity(0.2)),
+            ),
+            child: Text(
+              'These are estimates based on the Harris-Benedict equation. Individual needs vary. elaarra is not a substitute for professional medical or nutritional advice.',
+              style: AppTextStyles.caption.copyWith(
+                fontSize: 10,
+                color: AppColors.blush.withOpacity(0.7),
+                height: 1.5,
+              ),
+            ),
           ),
         ],
       ),
@@ -324,18 +470,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onTap: _back,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 14,
-                    ),
+                      horizontal: 20, vertical: 14),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
-                      'Back',
+                    child: Text('Back',
                       style: AppTextStyles.button.copyWith(
-                        color: AppColors.cream,
-                      ),
-                    ),
+                        color: AppColors.cream)),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -382,6 +524,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(label, style: AppTextStyles.label),
           TextField(
             controller: controller,
+            textCapitalization: TextCapitalization.words,
             style: AppTextStyles.inputValue,
             decoration: InputDecoration(
               hintText: hint,
@@ -430,10 +573,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
           ),
-          Text(
-            unit,
-            style: AppTextStyles.label.copyWith(color: AppColors.sienna),
-          ),
+          Text(unit,
+            style: AppTextStyles.label.copyWith(color: AppColors.sienna)),
         ],
       ),
     );
@@ -481,10 +622,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             Text(label, style: AppTextStyles.label),
             const SizedBox(height: 4),
-            Text(
-              value,
-              style: AppTextStyles.inputValue.copyWith(fontSize: 18),
-            ),
+            Text(value,
+              style: AppTextStyles.inputValue.copyWith(fontSize: 18)),
           ],
         ),
       ),
