@@ -38,8 +38,9 @@ class GoalsScreen extends StatefulWidget {
 class _GoalsScreenState extends State<GoalsScreen> {
   final List<String> _goalTypes = [
     'Manage weight',
-    'Build muscle',
-    'Maintain lifestyle',
+    'Maintain weight',
+    'Improve nutrition',
+    'Gain muscle',
   ];
 
   void _openNewGoal(AppState state) {
@@ -125,7 +126,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
     return Container(
       decoration: const BoxDecoration(gradient: AppGradient.background),
-      child: SafeArea(bottom: false,
+      child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           child: Column(
