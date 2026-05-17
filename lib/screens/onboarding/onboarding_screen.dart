@@ -48,6 +48,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     'Very active': 1.725,
   };
 
+  String get _activityDescription {
+    switch (_activityLevel) {
+      case 'Mostly sedentary':
+        return 'Little or no exercise, desk job.';
+      case 'Lightly active':
+        return 'Light exercise 1-3 days/week.';
+      case 'Moderately active':
+        return 'Moderate exercise 3-5 days/week.';
+      case 'Very active':
+        return 'Hard exercise 6-7 days/week.';
+      default:
+        return '';
+    }
+  }
+
   int get _goalAdjustment {
     if (_selectedGoal == 'Manage weight') {
       return _manageDirection == 'lose' ? -500 : 300;
@@ -83,6 +98,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (weeks < 4) return 'approx. $weeks weeks';
     final months = (weeks / 4.3).ceil();
     return 'approx. $months months';
+  }
+
+  bool get _isLowCalorieTarget {
+    final minSafe = _gender == 'female' ? 1200 : 1500;
+    return _dailyCalories < minSafe;
   }
 
   bool get _isUnrealisticTarget {
@@ -268,6 +288,67 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             color: AppColors.darkBrown),
           _buildInputRow('Age', _ageController, 'yrs',
             color: AppColors.darkBrown),
+          const SizedBox(height: 8),
+          // Activity level
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.cream,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Activity level',
+                  style: AppTextStyles.label.copyWith(
+                    color: AppColors.midBrown, fontSize: 11)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: _activityLevels.map((a) {
+                    final sel = _activityLevel == a;
+                    return GestureDetector(
+                      onTap: () => setState(() => _activityLevel = a),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: sel
+                              ? AppColors.darkBrown
+                              : Colors.white.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: sel
+                                ? AppColors.darkBrown
+                                : AppColors.blush,
+                          ),
+                        ),
+                        child: Text(a,
+                          style: AppTextStyles.caption.copyWith(
+                            fontSize: 10,
+                            color: sel
+                                ? AppColors.cream
+                                : AppColors.midBrown,
+                            fontWeight: FontWeight.w500,
+                          )),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _activityDescription,
+                  style: AppTextStyles.caption.copyWith(
+                    fontSize: 10,
+                    color: AppColors.midBrown.withOpacity(0.7),
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -529,6 +610,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ],
           ),
           const SizedBox(height: 10),
+          if (_isLowCalorieTarget) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: AppColors.error.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: AppColors.error.withOpacity(0.3)),
+              ),
+              child: Text(
+                'Your calculated target is below the recommended minimum for safe weight loss. We strongly recommend speaking with a doctor or dietitian before proceeding. elaarra supports your wellbeing — please be kind to yourself.',
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 10,
+                  color: AppColors.error.withOpacity(0.9),
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
