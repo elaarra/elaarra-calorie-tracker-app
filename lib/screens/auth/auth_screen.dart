@@ -157,7 +157,7 @@ class _AuthScreenState extends State<AuthScreen> {
               Image.asset('assets/images/logo_cream_alpha.png', height: 48),
               const SizedBox(height: 48),
               Text(
-                'Hey, you.',
+                'Hey, you',
                 style: AppTextStyles.titleLarge.copyWith(fontSize: 52),
               ),
               const SizedBox(height: 10),
@@ -261,7 +261,7 @@ class _AuthScreenState extends State<AuthScreen> {
               Image.asset('assets/images/logo_cream_alpha.png', height: 48),
               const SizedBox(height: 24),
               Text(
-                'Welcome\nback.',
+                'Welcome\nback',
                 style: AppTextStyles.titleLarge.copyWith(fontSize: 48),
               ),
               const SizedBox(height: 8),
