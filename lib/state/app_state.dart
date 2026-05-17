@@ -213,13 +213,13 @@ class AppState extends ChangeNotifier {
   }
 
   String get encouragement {
-  if (isOverToday) return 'Let\'s realign tomorrow. Every day is a fresh start.';
-  if (todayConsumed == 0) return 'Your journey starts with one meal. Log something today — even something small counts.';
-  final pct = todayProgress * 100;
-  if (pct >= 90) return 'Almost there. You\'ve been intentional today — finish strong.';
-  if (pct >= 60) return 'You\'re right where you need to be. Stay the course.';
-  return 'A good start. Keep going — every entry tells your story.';
-}
+    if (isOverToday) return 'Let's realign tomorrow. Every day is a fresh start.';
+    if (todayConsumed == 0) return 'Your journey starts with one meal. Log something today — even something small counts.';
+    final pct = todayProgress * 100;
+    if (pct >= 90) return 'Almost there. You've been intentional today — finish strong.';
+    if (pct >= 60) return 'You're right where you need to be. Stay the course.';
+    return 'A good start. Keep going — every entry tells your story.';
+  }
 
   // ── Add log entry ─────────────────────────────────────────
   Future<void> addEntry(DateTime date, LogEntry entry) async {
@@ -309,6 +309,17 @@ class AppState extends ChangeNotifier {
     notifyListeners();
     await DatabaseService.instance.clearAllData();
     FirestoreService.instance.clearAllData();
+  }
+
+  // Called after fresh start — marks onboarding as incomplete
+  // so the app sends the user back through goal setup
+  Future<void> resetOnboarding() async {
+    await DatabaseService.instance.saveProfile(
+      userName: userName,
+      dailyTarget: dailyTarget,
+      isPremium: isPremium,
+      onboardingComplete: false,
+    );
   }
 
   Future<void> _saveProfile() async {
