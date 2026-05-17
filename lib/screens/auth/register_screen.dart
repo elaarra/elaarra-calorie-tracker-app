@@ -68,9 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } on FirebaseAuthException catch (e) {
       if (mounted) setState(() => _error = _friendlyError(e.code));
     } catch (e) {
-      if (mounted) {
-        setState(() => _error = 'Something went wrong. Please try again.');
-      }
+      if (mounted) setState(() => _error = 'Error: ${e.toString()}');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -91,150 +89,163 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppGradient.background),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 40, height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.blush.withOpacity(0.3),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new,
-                      color: AppColors.cream,
-                      size: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Image.asset('assets/images/logo_cream_alpha.png', height: 48),
-                const SizedBox(height: 16),
-                Text(
-                  'Create your\naccount',
-                  style: AppTextStyles.titleLarge.copyWith(fontSize: 48),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Your data will sync across all your devices.',
-                  style: AppTextStyles.body,
-                ),
-                const SizedBox(height: 36),
-                _buildInputField(
-                  controller: _emailController,
-                  label: 'Email',
-                  hint: 'your@email.com',
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 10),
-                _buildInputField(
-                  controller: _passwordController,
-                  label: 'Password',
-                  hint: '••••••••',
-                  obscure: _obscure1,
-                  suffix: GestureDetector(
-                    onTap: () => setState(() => _obscure1 = !_obscure1),
-                    child: Icon(
-                      _obscure1
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      color: AppColors.sienna,
-                      size: 18,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _buildInputField(
-                  controller: _confirmController,
-                  label: 'Confirm password',
-                  hint: '••••••••',
-                  obscure: _obscure2,
-                  suffix: GestureDetector(
-                    onTap: () => setState(() => _obscure2 = !_obscure2),
-                    child: Icon(
-                      _obscure2
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      color: AppColors.sienna,
-                      size: 18,
-                    ),
-                  ),
-                ),
-                if (_error != null) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      _error!,
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.error, fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 24),
-                GestureDetector(
-                  onTap: _loading ? null : _register,
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      color: AppColors.cream,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: _loading
-                        ? const Center(
-                            child: SizedBox(
-                              width: 20, height: 20,
-                              child: CircularProgressIndicator(
-                                color: AppColors.darkBrown, strokeWidth: 2,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            'Create account',
-                            textAlign: TextAlign.center,
-                            style: AppTextStyles.button,
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: screenHeight),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Already have an account? ',
-                      style: AppTextStyles.caption.copyWith(fontSize: 12),
-                    ),
+                    // Back button
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: Text(
-                        'Sign in',
-                        style: AppTextStyles.caption.copyWith(
-                          fontSize: 12,
-                          color: AppColors.cream,
-                          fontWeight: FontWeight.w500,
+                      child: Container(
+                        width: 40, height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.blush.withOpacity(0.3)),
+                        ),
+                        child: const Icon(Icons.arrow_back_ios_new,
+                          color: AppColors.cream, size: 16),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Image.asset(
+                      'assets/images/logo_cream_alpha.png',
+                      height: 48,
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Create your\naccount',
+                      style: AppTextStyles.titleLarge.copyWith(fontSize: 48),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Your data will sync across all your devices.',
+                      style: AppTextStyles.body,
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Email
+                    _buildInputField(
+                      controller: _emailController,
+                      label: 'Email',
+                      hint: 'your@email.com',
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Password
+                    _buildInputField(
+                      controller: _passwordController,
+                      label: 'Password',
+                      hint: '••••••••',
+                      obscure: _obscure1,
+                      suffix: GestureDetector(
+                        onTap: () => setState(() => _obscure1 = !_obscure1),
+                        child: Icon(
+                          _obscure1
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: AppColors.sienna, size: 18,
                         ),
                       ),
                     ),
+                    const SizedBox(height: 10),
+
+                    // Confirm password
+                    _buildInputField(
+                      controller: _confirmController,
+                      label: 'Confirm password',
+                      hint: '••••••••',
+                      obscure: _obscure2,
+                      suffix: GestureDetector(
+                        onTap: () => setState(() => _obscure2 = !_obscure2),
+                        child: Icon(
+                          _obscure2
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: AppColors.sienna, size: 18,
+                        ),
+                      ),
+                    ),
+
+                    // Error
+                    if (_error != null) ...[
+                      const SizedBox(height: 14),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.error.withOpacity(0.4)),
+                        ),
+                        child: Text(_error!,
+                          style: AppTextStyles.label.copyWith(
+                            color: AppColors.cream, fontSize: 13,
+                            fontWeight: FontWeight.w400, height: 1.5)),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+
+                    // Register button
+                    GestureDetector(
+                      onTap: _loading ? null : _register,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.cream,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: _loading
+                            ? const Center(
+                                child: SizedBox(
+                                  width: 20, height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.darkBrown,
+                                    strokeWidth: 2),
+                                ),
+                              )
+                            : Text(
+                                'Create account',
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.button,
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Sign in link
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Already have an account? ',
+                          style: AppTextStyles.caption.copyWith(
+                            fontSize: 12)),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Text('Sign in',
+                            style: AppTextStyles.caption.copyWith(
+                              fontSize: 12,
+                              color: AppColors.cream,
+                              fontWeight: FontWeight.w500)),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -259,12 +270,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: AppTextStyles.label.copyWith(
-              fontSize: 10, color: AppColors.midBrown,
-            ),
-          ),
+          Text(label, style: AppTextStyles.label.copyWith(
+            fontSize: 10, color: AppColors.midBrown)),
           Row(
             children: [
               Expanded(
@@ -273,13 +280,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: keyboardType,
                   obscureText: obscure,
                   style: AppTextStyles.label.copyWith(
-                    color: AppColors.darkBrown, fontSize: 15,
-                  ),
+                    color: AppColors.darkBrown, fontSize: 15),
                   decoration: InputDecoration(
                     hintText: hint,
                     hintStyle: AppTextStyles.label.copyWith(
-                      color: AppColors.blush.withOpacity(0.5), fontSize: 14,
-                    ),
+                      color: AppColors.blush.withOpacity(0.5),
+                      fontSize: 14),
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: const EdgeInsets.only(top: 6),
