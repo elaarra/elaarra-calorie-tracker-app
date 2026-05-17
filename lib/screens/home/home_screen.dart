@@ -14,12 +14,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final int _proteinConsumed = 68;
-  final int _proteinTarget   = 124;
-  final int _carbsConsumed   = 112;
-  final int _carbsTarget     = 165;
-  final int _fatConsumed     = 38;
-  final int _fatTarget       = 55;
+
 
   String get _greeting {
     final h = DateTime.now().hour;
@@ -177,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       height: screenHeight,
       decoration: const BoxDecoration(gradient: AppGradient.background),
-      child: SafeArea(bottom: false,
+      child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
           child: Column(
@@ -189,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 10),
               _buildEncouragement(state),
               const SizedBox(height: 10),
-              _buildMacros(),
+              _buildMacros(state),
               const SizedBox(height: 16),
               _buildMealList(state),
               // Push content to fill screen so gradient always covers background
@@ -325,14 +320,24 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMacros() {
+  Widget _buildMacros(AppState state) {
+    // Calculate macros from today's calories using standard ratios
+    final kcal = state.todayConsumed;
+    final proteinConsumed = ((kcal * 0.30) / 4).round();
+    final carbsConsumed   = ((kcal * 0.40) / 4).round();
+    final fatConsumed     = ((kcal * 0.30) / 9).round();
+
+    final proteinTarget = ((state.dailyTarget * 0.30) / 4).round();
+    final carbsTarget   = ((state.dailyTarget * 0.40) / 4).round();
+    final fatTarget     = ((state.dailyTarget * 0.30) / 9).round();
+
     return Row(
       children: [
-        _buildMacroCard('protein', _proteinConsumed, _proteinTarget),
+        _buildMacroCard('protein', proteinConsumed, proteinTarget),
         const SizedBox(width: 8),
-        _buildMacroCard('carbs', _carbsConsumed, _carbsTarget),
+        _buildMacroCard('carbs', carbsConsumed, carbsTarget),
         const SizedBox(width: 8),
-        _buildMacroCard('fat', _fatConsumed, _fatTarget),
+        _buildMacroCard('fat', fatConsumed, fatTarget),
       ],
     );
   }
