@@ -198,7 +198,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     margin: EdgeInsets.only(right: g == 'female' ? 6 : 0),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: selected ? AppColors.darkBrown : AppColors.white,
+                      color: selected ? AppColors.darkBrown : AppColors.cream,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: selected ? AppColors.darkBrown : AppColors.blush,
