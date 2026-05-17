@@ -537,6 +537,24 @@ class _AnalyseScreenState extends State<AnalyseScreen> {
           ),
           const SizedBox(height: 14),
 
+          // AI disclaimer
+          Container(
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.blush.withOpacity(0.15)),
+            ),
+            child: Text(
+              'AI estimates are approximate and may vary. Always verify nutritional information, especially if you have dietary requirements or health conditions.',
+              style: AppTextStyles.caption.copyWith(
+                fontSize: 10,
+                color: AppColors.blush.withOpacity(0.7),
+                height: 1.5,
+              ),
+            ),
+          ),
           // Action buttons
           Row(
             children: [
