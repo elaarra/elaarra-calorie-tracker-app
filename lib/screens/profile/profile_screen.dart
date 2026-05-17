@@ -6,6 +6,7 @@ import '../../utils/theme.dart';
 import '../../state/app_state.dart';
 import '../auth/auth_screen.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../info/calculation_screen.dart';
 import '../paywall/paywall_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -777,6 +778,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ],
 
+                      // How we calculate this
+                      GestureDetector(
+                        onTap: () => Navigator.push(context,
+                          MaterialPageRoute(
+                            builder: (_) => const CalculationScreen())),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.06),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.08)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40, height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(Icons.calculate_outlined,
+                                  color: AppColors.blush, size: 18),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('How we calculate your target',
+                                      style: AppTextStyles.label.copyWith(
+                                        color: AppColors.cream, fontSize: 13,
+                                        fontWeight: FontWeight.w400)),
+                                    const SizedBox(height: 2),
+                                    Text('Harris-Benedict, TDEE and more',
+                                      style: AppTextStyles.caption.copyWith(
+                                        fontSize: 10)),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios,
+                                color: AppColors.blush, size: 13),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Wellness disclaimer
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        margin: const EdgeInsets.only(bottom: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.04),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.blush.withOpacity(0.1)),
+                        ),
+                        child: Text(
+                          'elaarra is a wellness tool, not a medical service. Always consult a qualified healthcare professional before making significant changes to your diet. If you are struggling with your relationship with food, please reach out to a professional for support.',
+                          style: AppTextStyles.caption.copyWith(
+                            fontSize: 10,
+                            color: AppColors.blush.withOpacity(0.6),
+                            height: 1.6,
+                          ),
+                        ),
+                      ),
                       // Sign out
                       GestureDetector(
                         onTap: _signOut,
