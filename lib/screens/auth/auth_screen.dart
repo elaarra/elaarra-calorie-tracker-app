@@ -144,11 +144,16 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget _buildWelcomeView() {
     return SingleChildScrollView(
       key: const ValueKey('welcome'),
-      padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.asset('assets/images/logo_cream_alpha.png', height: 36),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+          Image.asset('assets/images/logo_cream_alpha.png', height: 48),
           const SizedBox(height: 48),
           Text(
             'Hey, you.',
@@ -220,7 +225,9 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
             textAlign: TextAlign.center,
           ),
-        ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -229,10 +236,15 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget _buildSignInView() {
     return SingleChildScrollView(
       key: const ValueKey('signin'),
-      padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           GestureDetector(
             onTap: () => setState(() { _showSignIn = false; _error = null; }),
             child: Container(
@@ -247,7 +259,7 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          Image.asset('assets/images/logo_cream_alpha.png', height: 36),
+          Image.asset('assets/images/logo_cream_alpha.png', height: 48),
           const SizedBox(height: 24),
           Text(
             'Welcome\nback.',
@@ -363,7 +375,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
