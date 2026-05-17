@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
 import '../../state/app_state.dart';
 import '../auth/auth_screen.dart';
+import '../onboarding/onboarding_screen.dart';
 import '../paywall/paywall_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -405,27 +406,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _doFreshStart() async {
     final state = context.read<AppState>();
     await state.resetAllData();
+    await state.resetOnboarding();
     if (mounted) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: AppColors.midBrown,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          content: Text(
-            'All data cleared. Fresh start — you\'ve got this.',
-            style: AppTextStyles.label.copyWith(color: AppColors.cream, fontSize: 13),
-          ),
-        ),
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+        (route) => false,
       );
     }
+  }
   }
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.darkBrown,
       body: Container(
         decoration: const BoxDecoration(gradient: AppGradient.background),
         child: SafeArea(
