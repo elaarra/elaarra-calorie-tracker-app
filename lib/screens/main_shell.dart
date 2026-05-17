@@ -117,8 +117,8 @@ class _MainShellState extends State<MainShell> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         decoration: BoxDecoration(
           color: selected
-              ? AppColors.cream
-              : AppColors.cream.withOpacity(0.15),
+              ? AppColors.cream.withOpacity(0.12)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -126,14 +126,18 @@ class _MainShellState extends State<MainShell> {
           children: [
             Icon(
               Icons.camera_alt_outlined,
-              color: selected ? AppColors.darkBrown : AppColors.cream,
+              color: selected
+                  ? AppColors.cream
+                  : AppColors.blush.withOpacity(0.5),
               size: 22,
             ),
             const SizedBox(height: 3),
             Text(
               'Analyse',
               style: AppTextStyles.caption.copyWith(
-                color: selected ? AppColors.darkBrown : AppColors.cream,
+                color: selected
+                    ? AppColors.cream
+                    : AppColors.blush.withOpacity(0.5),
                 fontSize: 10,
                 letterSpacing: 0.04,
               ),
