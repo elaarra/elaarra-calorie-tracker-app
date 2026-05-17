@@ -1,99 +1,94 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color darkBrown = Color(0xFF3D1A10);
-  static const Color midBrown  = Color(0xFF7A3B2E);
-  static const Color sienna    = Color(0xFFC4735A);
-  static const Color blush     = Color(0xFFE8B49A);
-  static const Color cream     = Color(0xFFFAF2EE);
-  static const Color white     = Color(0xFFFFFFFF);
-  static const Color inputBg   = Color(0xFFF0D5C8);
-  static const Color success   = Color(0xFF4CAF50);
-  static const Color error     = Color(0xFFE53935);
+  static const darkBrown = Color(0xFF3D1A10);
+  static const midBrown  = Color(0xFF7A3B2E);
+  static const sienna    = Color(0xFFC4735A);
+  static const blush     = Color(0xFFE8B49A);
+  static const cream     = Color(0xFFFAF2EE);
+  static const error     = Color(0xFFE57373);
+}
+
+class AppGradient {
+  static const background = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [AppColors.darkBrown, AppColors.midBrown, AppColors.sienna],
+    stops: [0.0, 0.55, 1.0],
+  );
 }
 
 class AppTextStyles {
-  // Brand mark — always lowercase, never override
+  static const String _serif  = 'CormorantGaramond';
+  static const String _sans   = 'Outfit';
+
+  // Brand mark — used for logo text fallback
   static const TextStyle brandMark = TextStyle(
-    fontFamily: 'CormorantGaramond',
-    fontSize: 22,
-    fontWeight: FontWeight.w600,
-    color: AppColors.blush,
-    letterSpacing: 0.04,
-  );
-
-  // Large editorial titles — on gradient background
-  static const TextStyle titleLarge = TextStyle(
-    fontFamily: 'CormorantGaramond',
-    fontSize: 44,
-    fontWeight: FontWeight.w700,
-    color: AppColors.cream,
-    height: 1.12,
-  );
-
-  // Section titles — on white/card surfaces
-  static const TextStyle titleMedium = TextStyle(
-    fontFamily: 'CormorantGaramond',
+    fontFamily: _serif,
+    fontWeight: FontWeight.w300,
     fontSize: 32,
-    fontWeight: FontWeight.w700,
+    color: AppColors.cream,
+    letterSpacing: 4,
+  );
+
+  // Large display titles — Cormorant Garamond
+  static const TextStyle titleLarge = TextStyle(
+    fontFamily: _serif,
+    fontWeight: FontWeight.w300,
+    fontSize: 36,
+    color: AppColors.cream,
+    height: 1.1,
+  );
+
+  static const TextStyle titleMedium = TextStyle(
+    fontFamily: _serif,
+    fontWeight: FontWeight.w400,
+    fontSize: 24,
     color: AppColors.darkBrown,
     height: 1.2,
   );
 
-  // Body text — Neue Montreal light
+  // Body text — Outfit
   static const TextStyle body = TextStyle(
-    fontFamily: 'NeueMontreal',
-    fontSize: 16,
+    fontFamily: _sans,
     fontWeight: FontWeight.w300,
-    color: AppColors.blush,
-    height: 1.55,
-    letterSpacing: 0.01,
-  );
-
-  // Labels — Neue Montreal regular
-  static const TextStyle label = TextStyle(
-    fontFamily: 'NeueMontreal',
-    fontSize: 13,
-    fontWeight: FontWeight.w400,
-    color: AppColors.midBrown,
-  );
-
-  // Step indicator & caps labels
-  static const TextStyle caption = TextStyle(
-    fontFamily: 'NeueMontreal',
-    fontSize: 12,
-    fontWeight: FontWeight.w300,
-    color: AppColors.blush,
-    letterSpacing: 0.12,
-  );
-
-  // Input values — Cormorant numbers feel luxurious
-  static const TextStyle inputValue = TextStyle(
-    fontFamily: 'CormorantGaramond',
-    fontSize: 30,
-    fontWeight: FontWeight.w700,
-    color: AppColors.darkBrown,
-  );
-
-  // Button text
-  static const TextStyle button = TextStyle(
-    fontFamily: 'NeueMontreal',
     fontSize: 15,
-    fontWeight: FontWeight.w500,
-    color: AppColors.darkBrown,
-    letterSpacing: 0.08,
+    color: AppColors.blush,
+    height: 1.6,
   );
-}
 
-class AppGradient {
-  static const LinearGradient background = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    stops: [0.0, 0.45, 1.0],
-    colors: [
-      AppColors.darkBrown,
-      AppColors.midBrown,
-      AppColors.sienna,
-    ],
+  // Labels — Outfit
+  static const TextStyle label = TextStyle(
+    fontFamily: _sans,
+    fontWeight: FontWeight.w400,
+    fontSize: 14,
+    color: AppColors.cream,
+    height: 1.4,
+  );
+
+  // Captions — Outfit
+  static const TextStyle caption = TextStyle(
+    fontFamily: _sans,
+    fontWeight: FontWeight.w300,
+    fontSize: 12,
+    color: AppColors.blush,
+    height: 1.4,
+  );
+
+  // Buttons — Outfit
+  static const TextStyle button = TextStyle(
+    fontFamily: _sans,
+    fontWeight: FontWeight.w500,
+    fontSize: 14,
+    color: AppColors.darkBrown,
+    letterSpacing: 0.2,
+  );
+
+  // Input values — Outfit
+  static const TextStyle inputValue = TextStyle(
+    fontFamily: _sans,
+    fontWeight: FontWeight.w300,
+    fontSize: 32,
+    color: AppColors.cream,
   );
 }
