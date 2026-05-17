@@ -119,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                Image.asset('assets/images/logo_cream_alpha.png', height: 36),
+                Image.asset('assets/images/logo_cream_alpha.png', height: 48),
                 const SizedBox(height: 16),
                 Text(
                   'Create your\naccount',
